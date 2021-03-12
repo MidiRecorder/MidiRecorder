@@ -4,11 +4,11 @@ using CannedBytes.Midi;
 
 namespace MidiRecorder
 {
-    public class MyReceiver : IMidiDataReceiver
+    public class RecordingReceiver : IMidiDataReceiver
     {
         private readonly IFileSystem _fileSystem;
 
-        public MyReceiver(IFileSystem fileSystem)
+        public RecordingReceiver(IFileSystem fileSystem)
         {
             _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         }
