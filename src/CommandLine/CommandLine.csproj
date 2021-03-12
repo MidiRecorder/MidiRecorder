@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="cannedbytes.midi" Version="2.0.2" />
+    <PackageReference Include="System.IO.Abstractions" Version="13.2.25" />
+  </ItemGroup>
+
+</Project>

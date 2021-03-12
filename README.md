@@ -1,0 +1,7 @@
+# MIDI Recorder
+
+Every musician has improvised something that then was unable to remember precisely. With the current technology you can solve that problem: just fire your favorite DAW and click record on a MIDI track. But this system is a bit cumbersome: first of all you have to remember to open your DAW, or have it permanently opened. You need a separate project because probably you are working on other things. So maybe two DAW instances? And you need to open this secondary instance every time you restart your system! Maybe your DAW offers some feature for background MIDI recording, but, does it preserve the data if you close the DAW (or it is closed accidentally)? How easy is to navigate the recorded MIDI data after, say, 3 days, in which you have maybe played at several 
+
+If you think that there must be an alternative way, you are right!
+
+MIDI Recorder is a little tool that allows you to record into MIDI files everything you play on your MIDI controllers. You can easily set MIDI Recorder to run when your system starts. MIDI Recorder splits what you play based on silences and date/time. You can set up a custom folder structure based on date/time and the MIDI Input. You can have it running while you work with your favorite DAW.
