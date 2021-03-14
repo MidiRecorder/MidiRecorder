@@ -10,8 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="cannedbytes.midi" Version="2.0.2" />
-    <PackageReference Include="System.IO.Abstractions" Version="13.2.25" />
+    <PackageReference Include="args" Version="1.2.1" />
+    <PackageReference Include="Cannedbytes.Midi" Version="2.0.2" />
+    <PackageReference Include="CannedBytes.Midi.IO" Version="2.0.2" />
+    <PackageReference Include="CannedBytes.Midi.Message" Version="2.0.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
