@@ -7,13 +7,19 @@
     <Nullable>enable</Nullable>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AssemblyName>midirecord</AssemblyName>
+    <RootNamespace>MidiRecorder.CommandLine</RootNamespace>
+    <Product>MIDI Recorder</Product>
+    <Authors>Ignacio Calvo</Authors>
+    <Copyright>Copyright (c) 2021 Ignacio Calvo</Copyright>
+    <Description>This tool allows you to permanently record all your MIDI activity. It will save a file each time you stop playing for some (customizable) duration.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="args" Version="1.2.1" />
     <PackageReference Include="Cannedbytes.Midi" Version="2.0.2" />
     <PackageReference Include="CannedBytes.Midi.IO" Version="2.0.2" />
     <PackageReference Include="CannedBytes.Midi.Message" Version="2.0.2" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>

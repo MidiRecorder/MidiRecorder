@@ -7,12 +7,17 @@ using System.Text;
 
 namespace MidiRecorder
 {
-    public static class StringEx
+    public static class StringExt
     {
         public static string Format(string formatString, object data)
         {
             object? GetPropertyValue(object target, string propertyName) 
             {
+                if (target == null)
+                {
+                    throw new ArgumentNullException(nameof(data), "The format string has placeholders and you passed null data.");
+                }
+
                 var propertyInfo = target.GetType().GetProperty(propertyName);
                 if (propertyInfo == null)
                 {

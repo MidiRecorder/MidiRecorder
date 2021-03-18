@@ -4,13 +4,23 @@ using System.Linq;
 using System.Reactive.Linq;
 using CannedBytes.Midi;
 using CannedBytes.Midi.IO;
+using MidiRecorder.CommandLine;
 
 namespace MidiRecorder
 {
     public class MidiRecorderApplicationService
     {
-        public IDisposable StartRecording(int inputPortIndex, TimeSpan delayToSave, string pathFormatString)
+        public RecordResult StartRecording(RecordOptions options)
         {
+            var inputId = GetMidiInputId(options.MidiInputName);
+            if (inputId == null)
+            {
+                return new RecordResult($"The MIDI input '{options.MidiInputName}' could not be located");
+            }
+
+            var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
+            var pathFormatString = options.PathFormatString;
+
             var midiIn = new MidiInPort();
             var receiver = new ObservableReceiver();
 
@@ -25,40 +35,47 @@ namespace MidiRecorder
                 .Select(x => x
                     .Aggregate(ImmutableList<MidiFileEvent>.Empty, (l, i) => l.Add(i)))
                 .ForEachAsync(midiFile => midiFile
-                    .ForEachAsync(eventList =>
-                    {
-                        SaveFile(eventList);
-                    }));
+                    .ForEachAsync(SaveMidiFile));
 
-            midiIn.Open(inputPortIndex);
+            midiIn.Open(inputId.Value);
             midiIn.Start();
-            // Console.WriteLine("Recording started. Press any key to quit.");
-            // Console.ReadLine();
 
-            return new Disposer(() => midiIn.Stop());
-
-            void SaveFile(ImmutableList<MidiFileEvent> eventList)
+            return new RecordResult(() =>
             {
-                var context = new MidiFileContext(eventList, DateTime.Now);
+                midiIn.Stop();
+                midiIn.Dispose();
+            });
+
+            void SaveMidiFile(ImmutableList<MidiFileEvent> eventList)
+            {
+                var context = new MidiFileContext(eventList, DateTime.Now, Guid.NewGuid());
                 string filePath = context.BuildFilePath(pathFormatString);
                 Console.WriteLine($"SAVING {eventList.Count} EVENTS TO FILE {filePath}...");
                 MidiFileSerializer.Serialize(eventList, filePath);
             }
         }
 
-        private class Disposer : IDisposable
+        static int? GetMidiInputId(string midiInputName)
         {
-            private readonly Action _action;
+            var midiInCapabilities = new MidiInPortCapsCollection();
 
-            public Disposer(Action action)
+            if (midiInCapabilities.Count == 0)
             {
-                _action = action ?? throw new ArgumentNullException(nameof(action));
+                return null;
             }
 
-            public void Dispose()
+            int? selectedIdx = midiInCapabilities
+                .Select((port, idx) => new {port, idx})
+                .FirstOrDefault(x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))
+                ?.idx;
+
+            if (selectedIdx == null)
             {
-                _action();
+                return null;
             }
+
+            Console.WriteLine("The chosen MIDI input is " + midiInCapabilities[selectedIdx.Value].Name);
+            return selectedIdx.Value;
         }
     }
 }

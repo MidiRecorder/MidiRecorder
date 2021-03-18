@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace MidiRecorder
     {
         public static void Serialize(IEnumerable<MidiFileEvent> events, string filePath)
         {
-            MidiTrackBuilder builder = new MidiTrackBuilder(events);
+            MidiTrackBuilder builder = new(events);
             var tracks = builder.BuildTracks();
 
             var file = new MidiFile
@@ -23,8 +24,13 @@ namespace MidiRecorder
                 },
                 Tracks = tracks.Select(x => new MTrkChunk { Events = x })
             };
-            
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+            string? dirName = Path.GetDirectoryName(filePath);
+            if (dirName != null)
+            {
+                Directory.CreateDirectory(dirName);
+            }
+
             MidiFile.Write(file, filePath);
         }
     }

@@ -1,11 +1,10 @@
 using System;
-using System.Linq;
 using System.Reactive.Linq;
 using CannedBytes.Midi;
 using CannedBytes.Midi.IO;
 using CannedBytes.Midi.Message;
 
-namespace MidiRecorder
+namespace MidiRecorder.CommandLine
 {
     public class ObservableReceiver : IMidiDataReceiver, IObservable<MidiFileEvent>
     {

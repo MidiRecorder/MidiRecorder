@@ -18,5 +18,9 @@
         "titleBar.inactiveBackground": "#c8892999",
         "titleBar.inactiveForeground": "#15202b99"
     },
-    "peacock.color": "#c88929"
+    "peacock.color": "#c88929",
+    "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)",
+    "dotnet-test-explorer.autoWatch": true,
+    "dotnet-test-explorer.treeMode": "full",
+    "dotnet-test-explorer.autoExpandTree": true
 }
