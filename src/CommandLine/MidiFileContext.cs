@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using CannedBytes.Midi.IO;
 
-namespace MidiRecorder
+namespace MidiRecorder.CommandLine
 {
     public class MidiFileContext
     {

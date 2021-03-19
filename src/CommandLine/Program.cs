@@ -1,13 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using CannedBytes.Midi;
 using CommandLine;
 using CommandLine.Text;
-using MidiRecorder;
+using Microsoft.Extensions.Logging;
 using MidiRecorder.CommandLine;
+
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder
+        .AddFilter("Microsoft", LogLevel.Warning)
+        .AddFilter("System", LogLevel.Warning)
+        .AddFilter("Program", LogLevel.Debug)
+        .AddSimpleConsole(c => 
+            c.SingleLine = true);
+});
+ILogger logger = loggerFactory.CreateLogger("MidiRecorder");
+
 
 if (args.Length == 0)
 {
@@ -33,7 +44,7 @@ int ListMidiInputs(ListMidiInputsOptions options)
 
     if (midiInCapabilities.Count == 0)
     {
-        Console.WriteLine("No MIDI inputs.");
+        logger.LogError("No MIDI inputs.");
     }
 
     foreach (var x in midiInCapabilities.Select((port, idx) => (port, idx)))
@@ -46,7 +57,7 @@ int ListMidiInputs(ListMidiInputsOptions options)
 
 int Record(RecordOptions options)
 {
-    var svc = new MidiRecorderApplicationService();
+    var svc = new MidiRecorderApplicationService(logger);
 
     using RecordResult stop = svc.StartRecording(options);
 

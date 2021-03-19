@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using CannedBytes.Midi.IO;
 
-namespace MidiRecorder
+namespace MidiRecorder.CommandLine
 {
     internal static class MidiFileSerializer
     {

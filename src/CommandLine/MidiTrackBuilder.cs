@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using CannedBytes.Midi.IO;
 using CannedBytes.Midi.Message;
 
-namespace MidiRecorder
+namespace MidiRecorder.CommandLine
 {
     internal sealed class MidiTrackBuilder
     {

@@ -1,8 +1,9 @@
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
-using MidiRecorder;
-namespace Tests
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MidiRecorder.CommandLine;
+
+namespace MidiRecorder.Tests
 {
     [TestClass]
     public class StringExtTests

@@ -1,32 +1,41 @@
 using System;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using CannedBytes.Midi;
 using CannedBytes.Midi.IO;
-using MidiRecorder.CommandLine;
+using Microsoft.Extensions.Logging;
 
-namespace MidiRecorder
+namespace MidiRecorder.CommandLine
 {
     public class MidiRecorderApplicationService
     {
+        private readonly ILogger _logger;
+
+        public MidiRecorderApplicationService(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         public RecordResult StartRecording(RecordOptions options)
         {
+            if (options == null) throw new ArgumentNullException(nameof(options));
             var inputId = GetMidiInputId(options.MidiInput);
             if (inputId == null)
             {
                 return new RecordResult($"The MIDI input '{options.MidiInput}' could not be located");
             }
 
-            Console.WriteLine("Workind dir: " + Environment.CurrentDirectory);
-            Console.WriteLine("Output Path: " + options.PathFormatString);
+            _logger.LogInformation("Working dir: " + Environment.CurrentDirectory);
+            _logger.LogInformation("Output Path: " + options.PathFormatString);
             var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
-            Console.WriteLine("Delay to save: " + delayToSave);
+            _logger.LogInformation("Delay to save: " + delayToSave);
             var pathFormatString = options.PathFormatString;
 
+#pragma warning disable CA2000 // Dispose objects before losing scope -- The object will be disposed when the RecordResult is.
             var midiIn = new MidiInPort();
-            var receiver = new ObservableReceiver();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            var receiver = new ObservableReceiver(_logger);
 
             midiIn.Successor = receiver;
 
@@ -54,18 +63,18 @@ namespace MidiRecorder
             {
                 var context = new MidiFileContext(eventList, DateTime.Now, Guid.NewGuid());
                 string filePath = context.BuildFilePath(pathFormatString);
-                Console.WriteLine($"SAVING {eventList.Count} EVENTS TO FILE {filePath}...");
+                _logger.LogInformation($"SAVING {eventList.Count} EVENTS TO FILE {filePath}...");
                 MidiFileSerializer.Serialize(eventList, filePath);
             }
         }
 
-        static int? GetMidiInputId(string midiInputName)
+        int? GetMidiInputId(string midiInputName)
         {
             var midiInCapabilities = new MidiInPortCapsCollection();
 
             if (midiInCapabilities.Count == 0)
             {
-                Console.WriteLine("You have no MIDI inputs");
+                _logger.LogWarning("You have no MIDI inputs");
                 return null;
             }
 
@@ -82,10 +91,11 @@ namespace MidiRecorder
 
             if (selectedIdx == null)
             {
+                _logger.LogWarning("MIDI input not found");
                 return null;
             }
 
-            Console.WriteLine("MIDI Input: " + midiInCapabilities[selectedIdx.Value].Name);
+            _logger.LogInformation("MIDI Input: " + midiInCapabilities[selectedIdx.Value].Name);
             return selectedIdx.Value;
         }
     }

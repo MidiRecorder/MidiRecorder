@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace MidiRecorder
+namespace MidiRecorder.CommandLine
 {
     public static class StringExt
     {
