@@ -2,7 +2,7 @@
   "profiles": {
     "CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "Impulse 5000 {Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"
+      "commandLineArgs": "0 5000 {Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"
     },
     "NoArgs": {
       "commandName": "Project"

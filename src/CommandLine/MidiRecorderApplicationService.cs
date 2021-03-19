@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using CannedBytes.Midi;
@@ -12,13 +13,16 @@ namespace MidiRecorder
     {
         public RecordResult StartRecording(RecordOptions options)
         {
-            var inputId = GetMidiInputId(options.MidiInputName);
+            var inputId = GetMidiInputId(options.MidiInput);
             if (inputId == null)
             {
-                return new RecordResult($"The MIDI input '{options.MidiInputName}' could not be located");
+                return new RecordResult($"The MIDI input '{options.MidiInput}' could not be located");
             }
 
+            Console.WriteLine("Workind dir: " + Environment.CurrentDirectory);
+            Console.WriteLine("Output Path: " + options.PathFormatString);
             var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
+            Console.WriteLine("Delay to save: " + delayToSave);
             var pathFormatString = options.PathFormatString;
 
             var midiIn = new MidiInPort();
@@ -61,10 +65,17 @@ namespace MidiRecorder
 
             if (midiInCapabilities.Count == 0)
             {
+                Console.WriteLine("You have no MIDI inputs");
                 return null;
             }
 
-            int? selectedIdx = midiInCapabilities
+            int? selectedIdx = null;
+            if (int.TryParse(midiInputName, out var s))
+            {
+                selectedIdx = s >= 0 && s < midiInCapabilities.Count ? s : null;
+            }
+
+            selectedIdx ??= midiInCapabilities
                 .Select((port, idx) => new {port, idx})
                 .FirstOrDefault(x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))
                 ?.idx;
@@ -74,7 +85,7 @@ namespace MidiRecorder
                 return null;
             }
 
-            Console.WriteLine("The chosen MIDI input is " + midiInCapabilities[selectedIdx.Value].Name);
+            Console.WriteLine("MIDI Input: " + midiInCapabilities[selectedIdx.Value].Name);
             return selectedIdx.Value;
         }
     }

@@ -10,15 +10,15 @@ namespace MidiRecorder.CommandLine
     [Verb("record", isDefault:true, HelpText = "Records MIDI to files")]
     public class RecordOptions
     {
-        public RecordOptions(string midiInputName, long delayToSave, string pathFormatString)
+        public RecordOptions(string midiInput, long delayToSave, string pathFormatString)
         {
-            MidiInputName = midiInputName;
+            MidiInput = midiInput;
             PathFormatString = pathFormatString;
             DelayToSave = delayToSave;
         }
 
-        [Value(0, MetaName = "MIDI Input", HelpText = "MIDI Input name", Required = true)]
-        public string MidiInputName { get; }
+        [Value(0, MetaName = "MIDI Input", HelpText = "MIDI Input name or index", Required = true)]
+        public string MidiInput { get; }
 
         [Value(1, HelpText = "Delay before saving the latest recorded MIDI events", Required = true)]
         public long DelayToSave { get; }

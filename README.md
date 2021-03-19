@@ -17,22 +17,29 @@ If you think that there must be an alternative way, you are right!
 
 The typical usage would be:
 ```
-    midirecord.exe MIDI_INPUT_NAME DELAY_FOR_FILE_SPLIT OUTPUT_MIDI_PATH_FORMAT
+midirecord.exe MIDI_INPUT_NAME DELAY_FOR_FILE_SPLIT OUTPUT_MIDI_PATH_FORMAT
 ```
 
 For example, let's say you want to track the MIDI activity of your Korg M1, and you want to save a file each time you stop playing for 10 seconds. Also, you want to store the files in a path like `{YEAR}/{MONTH}/{DAY}/{HHMMSS}_{NUMBEROFNOTES}.mid`. For example if you stopped playing at 2021-07-14 14:32, and you've played 421 notes, it will save (10 seconds later) the file: `2021/07/14/1432_421.mid`. And then it will wait for your next improv! Well, in that case you would start MIDI Recorder like this:
 
 ```
-    midirecord.exe "Korg M1" 10000 "{Now:yyyy}/{Now:MM}/{Now:dd}/{Now:HHmmss}_{NumberOfNotes}.mid"
+midirecord.exe "Korg M1" 10000 "{Now:yyyy}/{Now:MM}/{Now:dd}/{Now:HHmmss}_{NumberOfNotes}.mid"
 ```
 
 The most complex part here is the path format. Please refer to the **Path Formatting** section for complete help.
 
-If you don't know the name of your MIDI inputs, you can use the `list` verb to get a list of all THE MIDI inputs in your system:
+You can also refer to your MIDI Inputs by index. If you have only one MIDI Input, the easiest way to launch MIDI Recorder is using `0` as an input name:
+
+```
+midirecord.exe 0 10000 "{Now:yyyy}/{Now:MM}/{Now:dd}/{Now:HHmmss}_{NumberOfNotes}.mid"
+```
+
+If you want to know the MIDI Inputs and their indexes in your system, use the `list` verb:
 
 ```
 midirecord.exe list
 ```
+
 
 ## Path Formatting
 
