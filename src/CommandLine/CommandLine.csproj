@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <AssemblyName>midirecord</AssemblyName>
+    <AssemblyName>midirec</AssemblyName>
     <RootNamespace>MidiRecorder.CommandLine</RootNamespace>
     <Product>MIDI Recorder</Product>
     <Authors>Ignacio Calvo</Authors>

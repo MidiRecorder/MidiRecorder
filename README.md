@@ -1,10 +1,8 @@
 [![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
-
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/MidiRecorder/MidiRecorder)
-
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/MidiRecorder/MidiRecorder/latest/total)
 
-# MIDI Recorder
+# 🎹 MIDI Recorder
 
 ## Introduction
 
@@ -18,7 +16,7 @@ If you think that there must be an alternative way, you are right!
 
 MIDI Recorder will give you results without parameters:
 ```
-midirecord.exe
+midirec.exe
 ```
 
 This way, it will record from all your MIDI inputs at once. Every time it detects a pause of 5 seconds in all the devices, it saves a file with the format `yyyyMMddHHmmss.mid` in your working directory. You can stop recording by pressing any key.
@@ -30,13 +28,13 @@ You can further customize the behavior by specifying the MIDI inputs to be recor
 You refer to your MIDI inputs by its name or by its index. To know the indexes and names of the MIDI inputs in your system, use the `list` verb:
 
 ```
-midirecord.exe list
+midirec.exe list
 ```
 
 You can specify several MIDI inputs separating them by commas:
 
 ```
-midirecord.exe -i M1,Triton
+midirec.exe -i M1,Triton
 ```
 
 Finally, as said earlier, you can record all available MIDI inputs if you omit the `-i` option.
