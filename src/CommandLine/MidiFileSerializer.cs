@@ -24,7 +24,7 @@ namespace MidiRecorder.CommandLine
             };
 
             string? dirName = Path.GetDirectoryName(filePath);
-            if (dirName != null)
+            if (!string.IsNullOrEmpty(dirName))
             {
                 Directory.CreateDirectory(dirName);
             }

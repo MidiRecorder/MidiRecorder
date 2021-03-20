@@ -76,8 +76,15 @@ namespace MidiRecorder.CommandLine
             {
                 var context = new MidiFileContext(eventList, DateTime.Now, Guid.NewGuid());
                 string filePath = context.BuildFilePath(pathFormatString);
-                _logger.LogInformation($"SAVING {eventList.Count} EVENTS TO FILE {filePath}...");
-                MidiFileSerializer.Serialize(eventList, filePath);
+                _logger.LogInformation($"Saving {eventList.Count} events to file {filePath}...");
+                try
+                {
+                    MidiFileSerializer.Serialize(eventList, filePath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "There was an error when saving the file");
+                }
             }
         }
 

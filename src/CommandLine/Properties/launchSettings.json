@@ -4,9 +4,6 @@
       "commandName": "Project",
       "commandLineArgs": "record --help"
     },
-    "RecordAll": {
-      "commandName": "Project"
-    },
     "DateFolderSchema": {
       "commandName": "Project",
       "commandLineArgs": "-d 5000 -f {Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"
@@ -14,6 +11,9 @@
     "List": {
       "commandName": "Project",
       "commandLineArgs": "list"
+    },
+    "Defaults": {
+      "commandName": "Project"
     }
   }
 }
