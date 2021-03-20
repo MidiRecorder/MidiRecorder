@@ -1,7 +1,5 @@
 [![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
 
-[![Join the Gitter chat!](https://badges.gitter.im/gsscoder/commandline.svg)](https://gitter.im/gsscoder/commandline?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 
 # MIDI Recorder
 
@@ -15,31 +13,50 @@ If you think that there must be an alternative way, you are right!
 
 ## Usage
 
-The typical usage would be:
+MIDI Recorder will give you results without parameters:
 ```
-midirecord.exe MIDI_INPUT_NAME DELAY_FOR_FILE_SPLIT OUTPUT_MIDI_PATH_FORMAT
-```
-
-For example, let's say you want to track the MIDI activity of your Korg M1, and you want to save a file each time you stop playing for 10 seconds. Also, you want to store the files in a path like `{YEAR}/{MONTH}/{DAY}/{HHMMSS}_{NUMBEROFNOTES}.mid`. For example if you stopped playing at 2021-07-14 14:32, and you've played 421 notes, it will save (10 seconds later) the file: `2021/07/14/1432_421.mid`. And then it will wait for your next improv! Well, in that case you would start MIDI Recorder like this:
-
-```
-midirecord.exe "Korg M1" 10000 "{Now:yyyy}/{Now:MM}/{Now:dd}/{Now:HHmmss}_{NumberOfNotes}.mid"
+midirecord.exe
 ```
 
-The most complex part here is the path format. Please refer to the **Path Formatting** section for complete help.
+This way, it will record from all your MIDI inputs at once. Every time it detects a pause of 5 seconds in all the devices, it saves a file with the format `yyyyMMddHHmmss.mid` in your working directory. You can stop recording by pressing any key.
 
-You can also refer to your MIDI Inputs by index. If you have only one MIDI Input, the easiest way to launch MIDI Recorder is using `0` as an input name:
+You can further customize the behavior by specifying the MIDI inputs to be recorded, the delay and the format of the saved filenames.
 
-```
-midirecord.exe 0 10000 "{Now:yyyy}/{Now:MM}/{Now:dd}/{Now:HHmmss}_{NumberOfNotes}.mid"
-```
+### MIDI Inputs (`-i` or `--input`)
 
-If you want to know the MIDI Inputs and their indexes in your system, use the `list` verb:
+You refer to your MIDI inputs by its name or by its index. To know the indexes and names of the MIDI inputs in your system, use the `list` verb:
 
 ```
 midirecord.exe list
 ```
 
+You can specify several MIDI inputs separating them by commas:
 
-## Path Formatting
+```
+midirecord.exe -i M1,Triton
+```
 
+Finally, as said earlier, you can record all available MIDI inputs if you omit the `-i` option.
+
+### Path Formatting (`-f` or `--format`)
+
+There are three available variables you can use in your path format string:
+
+
+Variable | Type | Description
+---------|------|------------
+`Now` | `System.DateTime` | Date and time when the file is saved.
+`NumberOfEvents` | `System.Int32`  | Number of MIDI events to be saved (including controllers, note-off, after touch, etc.)
+`NumberOfNoteEvents` | `System.Int32` | Number of Note ON MIDI events
+`Guid`  | `System.Guid` | A randomly generated unique identifier.
+
+These variables can be used in your format string using the [.NET rules for standard and custom formatting](https://docs.microsoft.com/es-es/dotnet/standard/base-types/formatting-types). Take into account that, instead of index numbers, you have to use the full name of the variable. So, for example, you typically use the format strings like:
+
+```csharp
+	String.Format("{0:yyyy}/{0:HHmmss}{1}_{2}.mid", Now, NumberOfEvents, Guid);
+```
+
+But here you would use instead:
+```
+	{Now:yyyyMMdd}/{Now:HHmmss}{NumberOfEvents}_{Guid}.mid
+```

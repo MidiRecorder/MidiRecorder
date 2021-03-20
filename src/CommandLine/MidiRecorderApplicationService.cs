@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Linq;
@@ -20,10 +21,10 @@ namespace MidiRecorder.CommandLine
         public RecordResult StartRecording(RecordOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            var inputId = GetMidiInputId(options.MidiInput);
-            if (inputId == null)
+            int[] inputIds = options.MidiInputs.SelectMany(GetMidiInputId).Distinct().ToArray();
+            if (inputIds.Length == 0)
             {
-                return new RecordResult($"The MIDI input '{options.MidiInput}' could not be located");
+                return new RecordResult($"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
             }
 
             _logger.LogInformation("Working dir: " + Environment.CurrentDirectory);
@@ -32,31 +33,43 @@ namespace MidiRecorder.CommandLine
             _logger.LogInformation("Delay to save: " + delayToSave);
             var pathFormatString = options.PathFormatString;
 
-#pragma warning disable CA2000 // Dispose objects before losing scope -- The object will be disposed when the RecordResult is.
-            var midiIn = new MidiInPort();
-#pragma warning restore CA2000 // Dispose objects before losing scope
-            var receiver = new ObservableReceiver(_logger);
+            var receiverFactory = new ObservableReceiverFactory(_logger);
 
-            midiIn.Successor = receiver;
-
-            var savingPoints = receiver
+            var savingPoints = receiverFactory
                 .Throttle(delayToSave)
                 .Select(x => x.AbsoluteTime);
 
-            var windowed = receiver
+            _ = receiverFactory
                 .Window(savingPoints)
                 .Select(x => x
                     .Aggregate(ImmutableList<MidiFileEvent>.Empty, (l, i) => l.Add(i)))
                 .ForEachAsync(midiFile => midiFile
                     .ForEachAsync(SaveMidiFile));
 
-            midiIn.Open(inputId.Value);
-            midiIn.Start();
+            var midiIns = new List<MidiInPort>();
+
+            foreach (var inputId in inputIds)
+            {
+#pragma warning disable CA2000 // Dispose objects before losing scope -- The object will be disposed when the RecordResult is.
+                var midiIn = new MidiInPort
+                {
+                    Successor = receiverFactory.Build(inputId)
+                };
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                midiIn.Open(inputId);
+                midiIn.Start();
+                midiIns.Add(midiIn);
+            }
+
 
             return new RecordResult(() =>
             {
-                midiIn.Stop();
-                midiIn.Dispose();
+                foreach (var midiIn in midiIns)
+                {
+                    midiIn.Stop();
+                    midiIn.Dispose();
+                }
             });
 
             void SaveMidiFile(ImmutableList<MidiFileEvent> eventList)
@@ -68,20 +81,30 @@ namespace MidiRecorder.CommandLine
             }
         }
 
-        int? GetMidiInputId(string midiInputName)
+        IEnumerable<int> GetMidiInputId(string midiInputName)
         {
-            var midiInCapabilities = new MidiInPortCapsCollection();
+            var midiInCapabilities = new MidiInPortCapsCollection().ToArray();
 
-            if (midiInCapabilities.Count == 0)
+            if (midiInCapabilities.Length == 0)
             {
                 _logger.LogWarning("You have no MIDI inputs");
-                return null;
+                yield break;
+            }
+
+            if (midiInputName == "*")
+            {
+                foreach (int i in Enumerable.Range(0, midiInCapabilities.Length))
+                {
+                    _logger.LogInformation("MIDI Input: " + midiInCapabilities[i].Name);
+                    yield return i;
+                }
+                yield break;
             }
 
             int? selectedIdx = null;
             if (int.TryParse(midiInputName, out var s))
             {
-                selectedIdx = s >= 0 && s < midiInCapabilities.Count ? s : null;
+                selectedIdx = s >= 0 && s < midiInCapabilities.Length ? s : null;
             }
 
             selectedIdx ??= midiInCapabilities
@@ -92,11 +115,11 @@ namespace MidiRecorder.CommandLine
             if (selectedIdx == null)
             {
                 _logger.LogWarning("MIDI input not found");
-                return null;
+                yield break;
             }
 
             _logger.LogInformation("MIDI Input: " + midiInCapabilities[selectedIdx.Value].Name);
-            return selectedIdx.Value;
+            yield return selectedIdx.Value;
         }
     }
 }

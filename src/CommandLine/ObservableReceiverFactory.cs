@@ -9,14 +9,14 @@ using Microsoft.Extensions.Logging;
 
 namespace MidiRecorder.CommandLine
 {
-    public class ObservableReceiver : IMidiDataReceiver, IObservable<MidiFileEvent>
+    public class ObservableReceiverFactory : IObservable<MidiFileEvent>
     {
         private readonly ILogger _logger;
-        private readonly MidiMessageFactory _factory = new MidiMessageFactory();
         private readonly IObservable<MidiFileEvent> _observable;
         private event EventHandler<MidiFileEvent>? MidiEvent;
+        private readonly MidiMessageFactory _factory = new();
 
-        public ObservableReceiver(ILogger logger)
+        public ObservableReceiverFactory(ILogger logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _observable = Observable.FromEventPattern<MidiFileEvent>(
@@ -25,11 +25,16 @@ namespace MidiRecorder.CommandLine
             ).Select(x => x.EventArgs);
         }
 
-        public void ShortData(int data, long timestamp)
+        public IMidiDataReceiver Build(int port)
+        {
+            return new FunctionMidiDataReceiver(port, ShortData);
+        }
+
+        public void ShortData(int data, long timestamp, int port)
         {
             var sb = new StringBuilder();
 
-            _ = sb.Append($"{timestamp}");
+            _ = sb.Append($"{port} {timestamp}");
             var midiEvent = new MidiFileEvent
             {
                 Message = _factory.CreateShortMessage(data),
@@ -44,14 +49,31 @@ namespace MidiRecorder.CommandLine
             MidiEvent?.Invoke(this, midiEvent);
         }
 
-        public void LongData(MidiBufferStream buffer, long timestamp)
-        {
-            // not used for short midi messages
-        }
-
         public IDisposable Subscribe(IObserver<MidiFileEvent> observer)
         {
             return _observable.Subscribe(observer);
+        }
+
+        private class FunctionMidiDataReceiver : IMidiDataReceiver
+        {
+            private readonly int _port;
+            private readonly Action<int, long, int> _actionWithPort;
+
+            public FunctionMidiDataReceiver(int port, Action<int, long, int> actionWithPort)
+            {
+                _port = port;
+                _actionWithPort = actionWithPort;
+            }
+
+            public void LongData(MidiBufferStream buffer, long timestamp)
+            {
+                // not used for short midi messages
+            }
+
+            public void ShortData(int data, long timestamp)
+            {
+                _actionWithPort(data, timestamp, _port);
+            }
         }
     }
 }

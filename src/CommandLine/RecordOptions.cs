@@ -10,20 +10,20 @@ namespace MidiRecorder.CommandLine
     [Verb("record", isDefault:true, HelpText = "Records MIDI to files")]
     public class RecordOptions
     {
-        public RecordOptions(string midiInput, long delayToSave, string pathFormatString)
+        public RecordOptions(IEnumerable<string> midiInputs, long delayToSave, string pathFormatString)
         {
-            MidiInput = midiInput;
+            MidiInputs = midiInputs;
             PathFormatString = pathFormatString;
             DelayToSave = delayToSave;
         }
 
-        [Value(0, MetaName = "MIDI Input", HelpText = "MIDI Input name or index", Required = true)]
-        public string MidiInput { get; }
+        [Option('i', "input", HelpText = "MIDI Input name or index", Default = new[] {"*"}, Separator = ',')]
+        public IEnumerable<string> MidiInputs { get; }
 
-        [Value(1, HelpText = "Delay before saving the latest recorded MIDI events", Required = true)]
+        [Option('d', "delay", HelpText = "Delay (in milliseconds) before saving the latest recorded MIDI events", Default = 5000)]
         public long DelayToSave { get; }
 
-        [Value(2, HelpText = "Format String for output MIDI path", Required = true)]
+        [Option('f', "format", HelpText = "Format String for output MIDI path", Default = "{Now:yyyyMMddHHmmss}.mid")]
         public string PathFormatString { get; }
 
         [Usage]
@@ -31,8 +31,8 @@ namespace MidiRecorder.CommandLine
         {
             get
             {
-                yield return new Example("normal scenario", new RecordOptions("Korg M1", 5000, "{Now}.mid"));
-                yield return new Example("date-based folder structure", new RecordOptions("Impulse", 7000, @"{Now:yyyy}\{Now:MM}\{Now:dd}\{Now:yyyyMMddHHmmss}_{NumberOfNoteEvents}.mid"));
+                yield return new Example("normal scenario", new RecordOptions(new [] {"M1", "Triton" }, 5000, "{Now}.mid"));
+                yield return new Example("date-based folder structure", new RecordOptions(new [] {"Impulse" }, 7000, @"{Now:yyyy}\{Now:MM}\{Now:dd}\{Now:yyyyMMddHHmmss}_{NumberOfNoteEvents}.mid"));
             }
         }
     }

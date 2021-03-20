@@ -13,17 +13,11 @@ using var loggerFactory = LoggerFactory.Create(builder =>
     builder
         .AddFilter("Microsoft", LogLevel.Warning)
         .AddFilter("System", LogLevel.Warning)
-        .AddFilter("Program", LogLevel.Debug)
+        .AddFilter("MidiRecorder", LogLevel.Trace)
         .AddSimpleConsole(c => 
             c.SingleLine = true);
 });
 ILogger logger = loggerFactory.CreateLogger("MidiRecorder");
-
-
-if (args.Length == 0)
-{
-    args = new[] { "--help" };
-}
 
 using var parser = new Parser(with =>
 {
