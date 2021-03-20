@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,10 +25,18 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
-
-
-    
-    
-    
-    
-    
+    - name: Create publish artifacts for Windows
+      if: startsWith(github.ref, 'refs/tags/')
+      run: dotnet publish CommandLine/CommandLine.csproj -o winrel -c Release -r win-x64 -p:PublishSingleFile=true --no-self-contained
+    - name: Zip artifacts for Windows
+      if: startsWith(github.ref, 'refs/tags/')
+      run: zip -r winrel.zip winrel
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          $GITHUB_WORKSPACE/src/winrel.zip
+        draft: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
