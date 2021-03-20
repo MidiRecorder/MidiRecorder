@@ -33,7 +33,7 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
-        draft: false
+        draft: true
         prerelease: false
     - name: Create publish artifacts for Windows
       run: dotnet publish CommandLine\CommandLine.csproj -o winrel -c Release -r win-x64 -p:PublishSingleFile=true --no-self-contained
