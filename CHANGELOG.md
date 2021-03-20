@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notification icon.
 - Create tracks by channel and/or port.
 
+## [1.0.3] - 2021-03-20
+### Added
+- Option `-r` to specify MIDI file resolution.
+
 ## [1.0.2] - 2021-03-20
 ### Fixed
 - The default format didn't work correctly.

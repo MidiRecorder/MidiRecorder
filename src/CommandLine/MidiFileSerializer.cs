@@ -7,7 +7,7 @@ namespace MidiRecorder.CommandLine
 {
     internal static class MidiFileSerializer
     {
-        public static void Serialize(IEnumerable<MidiFileEvent> events, string filePath)
+        public static void Serialize(IEnumerable<MidiFileEvent> events, string filePath, int timeDivision)
         {
             MidiTrackBuilder builder = new(events);
             var tracks = builder.BuildTracks();
@@ -18,7 +18,7 @@ namespace MidiRecorder.CommandLine
                 {
                     Format = (ushort)MidiFileFormat.MultipleTracks,
                     NumberOfTracks = (ushort)tracks.Count(),
-                    TimeDivision = 960
+                    TimeDivision = (ushort)timeDivision
                 },
                 Tracks = tracks.Select(x => new MTrkChunk { Events = x })
             };

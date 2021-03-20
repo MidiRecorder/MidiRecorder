@@ -61,3 +61,9 @@ But here you would use instead:
 ```
 	{Now:yyyyMMdd}/{Now:HHmmss}{NumberOfEvents}_{Guid}.mid
 ```
+
+### Delay to save (`-s` or `--delay`)
+The delay to wait without receiving any MIDI activity before saving a file. It is 5 seconds by default but you can use this option to configure the delay in milliseconds (so for example 8 seconds would be `-d 8000`).
+
+### MIDI resolution (`-r` or `--resolution`)
+Resolution of the saved MIDI file in pulses per quarter note (PPQ). Usually it has been 480 (and this is the default when you omit this option), but recent DAWs have started using 960 PPG by default and support even higher resolutions.

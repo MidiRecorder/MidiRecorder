@@ -27,14 +27,15 @@ namespace MidiRecorder.CommandLine
                 return new RecordResult($"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
             }
 
-            _logger.LogInformation("Working dir: " + Environment.CurrentDirectory);
-            _logger.LogInformation("Output Path: " + options.PathFormatString);
+            _logger.LogInformation($"Working dir: {Environment.CurrentDirectory}");
             var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
-            _logger.LogInformation("Delay to save: " + delayToSave);
+            _logger.LogInformation($"Delay to save: {delayToSave}");
             var pathFormatString = options.PathFormatString;
+            _logger.LogInformation($"Output Path: {pathFormatString}");
+            var midiResolution = options.MidiResolution;
+            _logger.LogInformation($"MIDI resolution: {midiResolution}");
 
             var receiverFactory = new ObservableReceiverFactory(_logger);
-
             var savingPoints = receiverFactory
                 .Throttle(delayToSave)
                 .Select(x => x.AbsoluteTime);
@@ -50,12 +51,10 @@ namespace MidiRecorder.CommandLine
 
             foreach (var inputId in inputIds)
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope -- The object will be disposed when the RecordResult is.
                 var midiIn = new MidiInPort
                 {
                     Successor = receiverFactory.Build(inputId)
                 };
-#pragma warning restore CA2000 // Dispose objects before losing scope
 
                 midiIn.Open(inputId);
                 midiIn.Start();
@@ -79,7 +78,7 @@ namespace MidiRecorder.CommandLine
                 _logger.LogInformation($"Saving {eventList.Count} events to file {filePath}...");
                 try
                 {
-                    MidiFileSerializer.Serialize(eventList, filePath);
+                    MidiFileSerializer.Serialize(eventList, filePath, midiResolution);
                 }
                 catch (Exception ex)
                 {
