@@ -13,6 +13,7 @@
     <Authors>Ignacio Calvo</Authors>
     <Copyright>Copyright (c) 2021 Ignacio Calvo</Copyright>
     <Description>This tool allows you to permanently record all your MIDI activity. It will save a file each time you stop playing for some (customizable) duration.</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
