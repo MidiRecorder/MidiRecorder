@@ -14,15 +14,15 @@ jobs:
       run:
         working-directory: src
     steps:
-    - name: Checkout code
+    - name: ✨ Checkout code
       uses: actions/checkout@v2
-    - name: Setup .NET
+    - name: ✨ Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
+    - name: 🧱 Build
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
@@ -32,12 +32,12 @@ jobs:
     - name: Zip artifacts for Windows
       if: startsWith(github.ref, 'refs/tags/')
       run: zip -r winrel.zip winrel
-    - name: Release
-      uses: softprops/action-gh-release@v1
+    - name: 📦 Release
+      uses: softprops/action-gh-release@master
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          ${{ env.GITHUB_WORKSPACE }}/src/winrel.zip
+          src/winrel.zip
         draft: true
         fail_on_unmatched_files: true
       env:
