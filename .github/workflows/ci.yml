@@ -37,7 +37,8 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          $GITHUB_WORKSPACE/src/winrel.zip
+          ${{ env.GITHUB_WORKSPACE }}/src/winrel.zip
         draft: true
+        fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
