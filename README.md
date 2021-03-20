@@ -1,6 +1,6 @@
 [![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/MidiRecorder/MidiRecorder)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/MidiRecorder/MidiRecorder/latest/total)
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/MidiRecorder/MidiRecorder/total)
 
 # 🎹 MIDI Recorder
 
