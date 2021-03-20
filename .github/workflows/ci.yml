@@ -10,6 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: ['win-x64', 'linux-x64', 'osx-x64']
     defaults:
       run:
         working-directory: src
@@ -28,16 +31,16 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: 📦 Create publish artifacts for Windows
       if: startsWith(github.ref, 'refs/tags/')
-      run: dotnet publish CommandLine/CommandLine.csproj -o win-64-rel -c Release -r win-x64 -p:PublishSingleFile=true --no-self-contained
+      run: dotnet publish CommandLine/CommandLine.csproj -o ${{ matrix.runtime }}-rel -c Release -r ${{ matrix.runtime }} -p:PublishSingleFile=true --no-self-contained
     - name: 🗜️ Zip artifacts for Windows
       if: startsWith(github.ref, 'refs/tags/')
-      run: zip -j -r midirecorder-win-x64.zip win-64-rel
+      run: zip -j -r midirecorder-${{ matrix.runtime }}.zip ${{ matrix.runtime }}-rel
     - name: 📦 Release
       uses: softprops/action-gh-release@master
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          src/midirecorder-win-x64.zip
+          src/midirecorder-${{ matrix.runtime }}.zip
         draft: true
         fail_on_unmatched_files: true
         body_path: CHANGELOG.md
