@@ -8,7 +8,27 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  buildtest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
+    steps:
+    - name: ✨ Checkout code
+      uses: actions/checkout@v2
+    - name: ✨ Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: 🧱 Build
+      run: dotnet build --no-restore
+    - name: 🐛 Test
+      run: dotnet test --no-build --verbosity normal
+  release:
+    needs: buildtest
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -26,19 +46,12 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: 🧱 Build
-      run: dotnet build --no-restore
-    - name: 🐛 Test
-      run: dotnet test --no-build --verbosity normal
     - name: 📦 Create publish artifacts for Windows
-      if: startsWith(github.ref, 'refs/tags/')
       run: dotnet publish CommandLine/CommandLine.csproj -o ${{ matrix.runtime }}-rel -c Release -r ${{ matrix.runtime }} -p:PublishSingleFile=true --no-self-contained
     - name: 🗜️ Zip artifacts for Windows
-      if: startsWith(github.ref, 'refs/tags/')
       run: zip -j -r midirecorder-${{ matrix.runtime }}.zip ${{ matrix.runtime }}-rel
     - name: 📦 Release
       uses: softprops/action-gh-release@master
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
           src/midirecorder-${{ matrix.runtime }}.zip
