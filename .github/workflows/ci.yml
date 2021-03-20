@@ -24,14 +24,14 @@ jobs:
       run: dotnet restore
     - name: 🧱 Build
       run: dotnet build --no-restore
-    - name: Test
+    - name: 🐛 Test
       run: dotnet test --no-build --verbosity normal
-    - name: Create publish artifacts for Windows
+    - name: 📦 Create publish artifacts for Windows
       if: startsWith(github.ref, 'refs/tags/')
       run: dotnet publish CommandLine/CommandLine.csproj -o win-64-rel -c Release -r win-x64 -p:PublishSingleFile=true --no-self-contained
-    - name: Zip artifacts for Windows
+    - name: 🗜️ Zip artifacts for Windows
       if: startsWith(github.ref, 'refs/tags/')
-      run: zip -r midirecorder-win-x64.zip win-64-rel
+      run: zip -j -r midirecorder-win-x64.zip win-64-rel
     - name: 📦 Release
       uses: softprops/action-gh-release@master
       if: startsWith(github.ref, 'refs/tags/')
