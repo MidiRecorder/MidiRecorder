@@ -36,7 +36,7 @@ jobs:
         draft: false
         prerelease: false
     - name: Create publish artifacts for Windows
-      run: dotnet publish .\CommandLine\CommandLine.csproj -o winrel -c Release -r win-x64 -p:PublishSingleFile=true --no-self-contained
+      run: dotnet publish CommandLine\CommandLine.csproj -o winrel -c Release -r win-x64 -p:PublishSingleFile=true --no-self-contained
     - name: Zip artifacts for Windows
       run: zip winrel
     - name: Upload Release Asset
