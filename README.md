@@ -62,7 +62,7 @@ But here you would use instead:
 	{Now:yyyyMMdd}/{Now:HHmmss}{NumberOfEvents}_{Guid}.mid
 ```
 
-### Delay to save (`-s` or `--delay`)
+### Delay to save (`-d` or `--delay`)
 The delay to wait without receiving any MIDI activity before saving a file. It is 5 seconds by default but you can use this option to configure the delay in milliseconds (so for example 8 seconds would be `-d 8000`).
 
 ### MIDI resolution (`-r` or `--resolution`)
