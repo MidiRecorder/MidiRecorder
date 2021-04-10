@@ -12,6 +12,10 @@ If you think that there must be an alternative way, you are right!
 
 **MIDI Recorder** is a little tool that allows you to record into MIDI files everything you play on your MIDI controllers. You can easily set MIDI Recorder to run when your system starts. MIDI Recorder splits what you play based on silences and date/time. You can set up a custom folder and filename structure based on date/time, some characteristics of the the MIDI Input, and other available properties. You can have it running while you work with your favorite DAW.
 
+## Installation
+
+Please head to the [latest release](https://github.com/MidiRecorder/MidiRecorder/releases/latest) and download the ZIP that corresponds to your machine and operating system. Unzip in a folder that is in your PATH.
+
 ## Usage
 
 MIDI Recorder will give you results without parameters:
