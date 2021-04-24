@@ -21,18 +21,22 @@ namespace MidiRecorder.CommandLine
         public RecordResult StartRecording(RecordOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
+
+            var pathFormatString = options.PathFormatString;
+            FormatTester.TestFormat(pathFormatString);
+
+            var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
             int[] inputIds = options.MidiInputs.SelectMany(GetMidiInputId).Distinct().ToArray();
             if (inputIds.Length == 0)
             {
                 return new RecordResult($"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
             }
 
-            _logger.LogInformation($"Working dir: {Environment.CurrentDirectory}");
-            var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
-            _logger.LogInformation($"Delay to save: {delayToSave}");
-            var pathFormatString = options.PathFormatString;
-            _logger.LogInformation($"Output Path: {pathFormatString}");
             var midiResolution = options.MidiResolution;
+
+            _logger.LogInformation($"Working dir: {Environment.CurrentDirectory}");
+            _logger.LogInformation($"Delay to save: {delayToSave}");
+            _logger.LogInformation($"Output path: {pathFormatString}");
             _logger.LogInformation($"MIDI resolution: {midiResolution}");
 
             var receiverFactory = new ObservableReceiverFactory(_logger);

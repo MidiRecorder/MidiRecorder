@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CannedBytes.Midi;
+using CannedBytes.Midi.IO;
+using CannedBytes.Midi.Message;
 using CommandLine;
 using CommandLine.Text;
 using Microsoft.Extensions.Logging;
@@ -24,12 +26,13 @@ using var parser = new Parser(with =>
     with.HelpWriter = null;
 });
 
-var parserResult = parser.ParseArguments<RecordOptions, ListMidiInputsOptions>(args);
+ParserResult<object> parserResult = parser.ParseArguments<RecordOptions, ListMidiInputsOptions, TestFormatOptions>(args);
 
 return parserResult
-    .MapResult<RecordOptions, ListMidiInputsOptions, int>(
+    .MapResult<RecordOptions, ListMidiInputsOptions, TestFormatOptions, int>(
         Record,
         ListMidiInputs,
+        TestFormat,
         errors => DisplayHelp(parserResult, errors));
 
 int ListMidiInputs(ListMidiInputsOptions options)
@@ -57,12 +60,27 @@ int Record(RecordOptions options)
 
     if (stop.IsError)
     {
-        DisplayHelp(parserResult, Enumerable.Empty<Error>());
+        Console.WriteLine(stop.ErrorMessage);
         return 1;
     }
 
     Console.WriteLine("Recording started. Press any key to quit.");
     Console.ReadLine();
+    return 0;
+}
+
+int TestFormat(TestFormatOptions options)
+{
+    try
+    {
+        string filePath = FormatTester.TestFormat(options.PathFormatString);
+        Console.WriteLine(filePath);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("ERROR: " + ex.Message);
+    }
+
     return 0;
 }
 

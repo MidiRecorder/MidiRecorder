@@ -5,8 +5,7 @@
       "commandLineArgs": "record --help"
     },
     "DateFolderSchema": {
-      "commandName": "Project",
-      "commandLineArgs": "-d 5000 -f {Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"
+      "commandName": "Project"
     },
     "List": {
       "commandName": "Project",
@@ -14,6 +13,10 @@
     },
     "Defaults": {
       "commandName": "Project"
+    },
+    "newProfile1": {
+      "commandName": "Project",
+      "commandLineArgs": "-d 20"
     }
   }
 }

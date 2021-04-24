@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using CommandLine;
@@ -14,6 +15,8 @@ namespace MidiRecorder.CommandLine
         {
             MidiInputs = midiInputs;
             PathFormatString = pathFormatString;
+            if (delayToSave < 100)
+                throw new ArgumentOutOfRangeException(nameof(delayToSave), "DelayToSave cannot be less than zero.");
             DelayToSave = delayToSave;
             MidiResolution = midiResolution;
         }
@@ -21,7 +24,8 @@ namespace MidiRecorder.CommandLine
         [Option('i', "input", HelpText = "MIDI Input name or index", Default = new[] {"*"}, Separator = ',')]
         public IEnumerable<string> MidiInputs { get; }
 
-        [Option('d', "delay", HelpText = "Delay (in milliseconds) before saving the latest recorded MIDI events", Default = 5000)]
+        [Option('d', "delay", HelpText = "Delay (in milliseconds) before saving the latest recorded MIDI events",
+            Default = 5000)]
         public long DelayToSave { get; }
 
         [Option('f', "format", HelpText = "Format String for output MIDI path", Default = "{Now:yyyyMMddHHmmss}.mid")]

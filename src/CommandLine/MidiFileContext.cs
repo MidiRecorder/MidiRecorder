@@ -8,11 +8,11 @@ namespace MidiRecorder.CommandLine
 {
     public class MidiFileContext
     {
-        private readonly ImmutableList<MidiFileEvent> _eventList;
+        private readonly IEnumerable<MidiFileEvent> _eventList;
         private readonly DateTime _now;
         private readonly Guid _uniqueIdentifier;
 
-        public MidiFileContext(ImmutableList<MidiFileEvent> eventList, DateTime now, Guid uniqueIdentifier)
+        public MidiFileContext(IEnumerable<MidiFileEvent> eventList, DateTime now, Guid uniqueIdentifier)
         {
             _eventList = eventList;
             _now = now;
@@ -31,7 +31,7 @@ namespace MidiRecorder.CommandLine
 
     internal class FormatData
     {
-        private readonly ImmutableList<MidiFileEvent> _eventList;
+        private readonly ImmutableArray<MidiFileEvent> _eventList;
         private readonly Dictionary<string, object?> _memoStore = new();
 
         private T? Memoize<T>(string key, Func<T> expression)
@@ -45,13 +45,13 @@ namespace MidiRecorder.CommandLine
         }
 
         public DateTime Now { get; }
-        public int NumberOfEvents => _eventList.Count;
+        public int NumberOfEvents => _eventList.Length;
         public int NumberOfNoteEvents => Memoize(nameof(NumberOfNoteEvents), () => _eventList.Count(x => x.Message.GetData()[0] == 0x90));
         public Guid Guid { get; }
 
-        public FormatData(DateTime now, ImmutableList<MidiFileEvent> eventList, Guid guid)
+        public FormatData(DateTime now, IEnumerable<MidiFileEvent> eventList, Guid guid)
         {
-            _eventList = eventList;
+            _eventList = eventList.ToImmutableArray();
             Now = now;
             Guid = guid;
         }

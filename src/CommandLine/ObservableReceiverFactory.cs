@@ -34,7 +34,7 @@ namespace MidiRecorder.CommandLine
         {
             var sb = new StringBuilder();
 
-            _ = sb.Append($"{port} {timestamp}");
+            _ = sb.Append($"{port} {timestamp} {data} ");
             var midiEvent = new MidiFileEvent
             {
                 Message = _factory.CreateShortMessage(data),
