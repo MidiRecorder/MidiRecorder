@@ -14,6 +14,8 @@ If you think that there must be an alternative way, you are right!
 
 ## Installation
 
+MIDI Recorder is a Microsoft .NET 5 application, so you will need to have the runtime installed. Please head to the [SDK downloads page](https://dotnet.microsoft.com/download/visual-studio-sdks).
+
 Please head to the [latest release](https://github.com/MidiRecorder/MidiRecorder/releases/latest) and download the ZIP that corresponds to your machine and operating system. Unzip in a folder that is in your PATH.
 
 ## Usage
