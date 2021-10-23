@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using CannedBytes.Midi;
 using CannedBytes.Midi.IO;
+using CannedBytes.Midi.Message;
 using Microsoft.Extensions.Logging;
 
 namespace MidiRecorder.CommandLine
@@ -18,33 +19,60 @@ namespace MidiRecorder.CommandLine
             _logger = logger;
         }
 
-        public RecordResult StartRecording(RecordOptions options)
+        public RecordStartResult StartRecording(RecordOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
             int[] inputIds = options.MidiInputs.SelectMany(GetMidiInputId).Distinct().ToArray();
             if (inputIds.Length == 0)
             {
-                return new RecordResult($"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
+                return new RecordStartResult($"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
             }
 
             _logger.LogInformation($"Working dir: {Environment.CurrentDirectory}");
             var delayToSave = TimeSpan.FromMilliseconds(options.DelayToSave);
             _logger.LogInformation($"Delay to save: {delayToSave}");
+            var timeoutToSave = TimeSpan.FromMilliseconds(30000);
+            _logger.LogInformation($"Timeout to save: {timeoutToSave}");
             var pathFormatString = options.PathFormatString;
             _logger.LogInformation($"Output Path: {pathFormatString}");
             var midiResolution = options.MidiResolution;
             _logger.LogInformation($"MIDI resolution: {midiResolution}");
 
-            var receiverFactory = new ObservableReceiverFactory(_logger);
-            var savingPoints = receiverFactory
-                .Throttle(delayToSave)
-                .Select(x => x.AbsoluteTime);
+            var allEvents = new ObservableReceiverFactory(_logger);
 
-            _ = receiverFactory
+            var timeouts = allEvents.Throttle(timeoutToSave);
+
+            // How many notes+sust.pedal are held?
+            var heldNotesAndPedals = allEvents
+                .Select(ConvertNoteEventToNumber)
+                .Where(x => x != 0)
+                .Scan(0, (acum, n) => Math.Max(0, acum + n));
+
+            // Finds a 
+            var timeoutSavingPoints = heldNotesAndPedals
+                .Throttle(timeoutToSave)
+                .Where(x => x > 0)
+                .Select(_ => 0);
+
+            heldNotesAndPedals = heldNotesAndPedals
+                .Merge(timeoutSavingPoints)
+                .DistinctUntilChanged();
+
+            var globalReleaseEvents = heldNotesAndPedals.Where(x => x == 0);
+
+            _ = globalReleaseEvents.ForEachAsync(x => _logger.LogTrace("All Notes/Pedals Off!"));
+
+            var globalReleaseSavingPoints = globalReleaseEvents.Throttle(delayToSave);
+
+            var savingPoints = timeoutSavingPoints.Merge(globalReleaseSavingPoints);
+
+            var groupsOfMidiFileEvents = allEvents
                 .Window(savingPoints)
                 .Select(x => x
-                    .Aggregate(ImmutableList<MidiFileEvent>.Empty, (l, i) => l.Add(i)))
-                .ForEachAsync(midiFile => midiFile
+                    .Aggregate(ImmutableList<MidiFileEvent>.Empty, (l, i) => l.Add(i)));
+
+            _ = groupsOfMidiFileEvents
+                .ForEachAsync(midiFileEvents => midiFileEvents
                     .ForEachAsync(SaveMidiFile));
 
             var midiIns = new List<MidiInPort>();
@@ -53,7 +81,7 @@ namespace MidiRecorder.CommandLine
             {
                 var midiIn = new MidiInPort
                 {
-                    Successor = receiverFactory.Build(inputId)
+                    Successor = allEvents.Build(inputId)
                 };
 
                 midiIn.Open(inputId);
@@ -62,7 +90,7 @@ namespace MidiRecorder.CommandLine
             }
 
 
-            return new RecordResult(() =>
+            return new RecordStartResult(() =>
             {
                 foreach (var midiIn in midiIns)
                 {
@@ -85,6 +113,23 @@ namespace MidiRecorder.CommandLine
                     _logger.LogError(ex, "There was an error when saving the file");
                 }
             }
+        }
+
+        private static int ConvertNoteEventToNumber(MidiFileEvent arg)
+        {
+            return arg.Message switch
+            {
+                MidiChannelMessage message =>
+                    message.Command switch
+                    {
+                        MidiChannelCommand.NoteOn => 1,
+                        MidiChannelCommand.NoteOff => -1,
+                        MidiChannelCommand.ControlChange when message.Parameter1 == 0x40 && message.Parameter2 == 0x7F => 1,
+                        MidiChannelCommand.ControlChange when message.Parameter1 == 0x40 && message.Parameter2 == 0x00 => -1,
+                        _ => 0
+                    },
+                _ => 0
+            };
         }
 
         IEnumerable<int> GetMidiInputId(string midiInputName)

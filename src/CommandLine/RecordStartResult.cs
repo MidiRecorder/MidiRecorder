@@ -2,17 +2,17 @@ using System;
 
 namespace MidiRecorder.CommandLine
 {
-    public class RecordResult : IDisposable
+    public class RecordStartResult : IDisposable
     {
         private readonly Action? _action;
 
-        public RecordResult(Action action)
+        public RecordStartResult(Action action)
         {
             _action = action;
             ErrorMessage = null;
         }
 
-        public RecordResult(string errorMessage)
+        public RecordStartResult(string errorMessage)
         {
             ErrorMessage = errorMessage;
         }

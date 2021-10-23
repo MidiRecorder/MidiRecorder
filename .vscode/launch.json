@@ -10,8 +10,8 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/CommandLine/bin/Debug/net5.0/CommandLine.dll",
-            "args": ["/i", "Impulse", "/d", "5000", "/f", "{Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"],
+            "program": "${workspaceFolder}/src/CommandLine/bin/Debug/net5.0/midirec.dll",
+            "args": ["/i", "Impulse", "/d", "10000", "/f", "{Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"],
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "externalTerminal",

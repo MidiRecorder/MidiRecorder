@@ -53,9 +53,9 @@ int Record(RecordOptions options)
 {
     var svc = new MidiRecorderApplicationService(logger);
 
-    using RecordResult stop = svc.StartRecording(options);
+    using RecordStartResult recordStartResult = svc.StartRecording(options);
 
-    if (stop.IsError)
+    if (recordStartResult.IsError)
     {
         DisplayHelp(parserResult, Enumerable.Empty<Error>());
         return 1;
