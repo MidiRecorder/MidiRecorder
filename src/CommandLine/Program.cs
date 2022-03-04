@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using CannedBytes.Midi;
 using CommandLine;
 using CommandLine.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MidiRecorder.CommandLine;
+using MidiRecorder.CommandLine.Logging;
+
+const string environmentVarPrefix = "MidiRecorder_";
+var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddEnvironmentVariables(prefix: environmentVarPrefix)
+    .Build();
 
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
-    builder
-        .AddFilter("Microsoft", LogLevel.Warning)
-        .AddFilter("System", LogLevel.Warning)
-        .AddFilter("MidiRecorder", LogLevel.Trace)
-        .AddSimpleConsole(c => 
-            c.SingleLine = true);
+    builder.ClearProviders();
+    builder.AddConfiguration(config.GetSection("Logging"));
+
+    builder.AddConsole();
+    builder.AddConsoleFormatter<CustomConsoleFormatter, CustomConsoleFormatterOptions>();
 });
 ILogger logger = loggerFactory.CreateLogger("MidiRecorder");
 
@@ -38,7 +42,8 @@ int ListMidiInputs(ListMidiInputsOptions options)
 
     if (midiInCapabilities.Count == 0)
     {
-        logger.LogError("No MIDI inputs.");
+        LoggerMessage.Define<string>(LogLevel.Error, 0, "No MIDI inputs {Xxx}");
+        logger.LogError("No MIDI inputs");
     }
 
     foreach (var x in midiInCapabilities.Select((port, idx) => (port, idx)))
@@ -61,7 +66,7 @@ int Record(RecordOptions options)
         return 1;
     }
 
-    Console.WriteLine("Recording started. Press any key to quit.");
+    logger.LogInformation("Recording started, Press any key to quit");
     Console.ReadLine();
     return 0;
 }

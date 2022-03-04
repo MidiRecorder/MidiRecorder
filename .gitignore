@@ -168,3 +168,4 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/visualstudiocode
 
+/src/install/

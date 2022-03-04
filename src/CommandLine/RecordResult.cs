@@ -1,28 +1,25 @@
-using System;
+namespace MidiRecorder.CommandLine;
 
-namespace MidiRecorder.CommandLine
+public sealed class RecordResult : IDisposable
 {
-    public class RecordResult : IDisposable
+    private readonly Action? _action;
+
+    public RecordResult(Action action)
     {
-        private readonly Action? _action;
+        _action = action;
+        ErrorMessage = null;
+    }
 
-        public RecordResult(Action action)
-        {
-            _action = action;
-            ErrorMessage = null;
-        }
+    public RecordResult(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
+    }
 
-        public RecordResult(string errorMessage)
-        {
-            ErrorMessage = errorMessage;
-        }
+    public string? ErrorMessage { get; }
+    public bool IsError => ErrorMessage != null;
 
-        public string? ErrorMessage { get; }
-        public bool IsError => ErrorMessage != null;
-
-        public void Dispose()
-        {
-            _action?.Invoke();
-        }
+    public void Dispose()
+    {
+        _action?.Invoke();
     }
 }

@@ -2,19 +2,30 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <Nullable>enable</Nullable>
-    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <CodeAnalysisRuleSet>..\Midirecorder.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <AnalysisMode>Recommended</AnalysisMode>
     <AssemblyName>midirec</AssemblyName>
     <RootNamespace>MidiRecorder.CommandLine</RootNamespace>
+    <ImplicitUsings>true</ImplicitUsings>
+    <PackAsTool>true</PackAsTool>
+    <IsPackable>true</IsPackable>
+    <ToolCommandName>midirec</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
     <Product>MIDI Recorder</Product>
     <Authors>Ignacio Calvo</Authors>
     <Copyright>Copyright (c) 2021 Ignacio Calvo</Copyright>
     <Description>This tool allows you to permanently record all your MIDI activity. It will save a file each time you stop playing for some (customizable) duration.</Description>
-    <Version>1.1.0</Version>
+    <PackageProjectUrl>https://github.com/midirecorder/midirecorder</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/midirecorder/midirecorder.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <LangVersion>10</LangVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <InformationalVersion>0.0.0-dev</InformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,15 +33,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="Cannedbytes.Midi" Version="2.0.2" />
     <PackageReference Include="CannedBytes.Midi.IO" Version="2.0.2" />
     <PackageReference Include="CannedBytes.Midi.Message" Version="2.0.2" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

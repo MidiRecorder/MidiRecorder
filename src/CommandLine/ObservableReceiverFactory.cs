@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Reactive.Linq;
 using System.Text;
@@ -7,73 +6,73 @@ using CannedBytes.Midi.IO;
 using CannedBytes.Midi.Message;
 using Microsoft.Extensions.Logging;
 
-namespace MidiRecorder.CommandLine
+namespace MidiRecorder.CommandLine;
+
+public class ObservableReceiverFactory : IObservable<MidiFileEvent>
 {
-    public class ObservableReceiverFactory : IObservable<MidiFileEvent>
+    private readonly ILogger _logger;
+    private readonly IObservable<MidiFileEvent> _observable;
+    private event EventHandler<MidiFileEvent>? MidiEvent;
+    private readonly MidiMessageFactory _factory = new();
+
+    public ObservableReceiverFactory(ILogger logger)
     {
-        private readonly ILogger _logger;
-        private readonly IObservable<MidiFileEvent> _observable;
-        private event EventHandler<MidiFileEvent>? MidiEvent;
-        private readonly MidiMessageFactory _factory = new();
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _observable = Observable.FromEventPattern<MidiFileEvent>(
+            a => MidiEvent += a,
+            a => MidiEvent -= a
+        ).Select(x => x.EventArgs);
+    }
 
-        public ObservableReceiverFactory(ILogger logger)
+    public IMidiDataReceiver Build(int port)
+    {
+        return new FunctionMidiDataReceiver(port, ShortData);
+    }
+
+    private void ShortData(int data, long timestamp, int port)
+    {
+        var sb = new StringBuilder();
+
+        _ = sb.Append(CultureInfo.InvariantCulture, $"{port} {timestamp}");
+        var midiEvent = new MidiFileEvent
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _observable = Observable.FromEventPattern<MidiFileEvent>(
-                a => MidiEvent += a,
-                a => MidiEvent -= a
-            ).Select(x => x.EventArgs);
+            Message = _factory.CreateShortMessage(data),
+            AbsoluteTime = timestamp
+        };
+
+        foreach (var b in midiEvent.Message.GetData())
+        {
+            _ = sb.AppendFormat(CultureInfo.InvariantCulture, " {0:X}", b);
         }
 
-        public IMidiDataReceiver Build(int port)
+        _logger.LogTrace("{Messages}", sb.ToString());
+        MidiEvent?.Invoke(this, midiEvent);
+    }
+
+    public IDisposable Subscribe(IObserver<MidiFileEvent> observer)
+    {
+        return _observable.Subscribe(observer);
+    }
+
+    private class FunctionMidiDataReceiver : IMidiDataReceiver
+    {
+        private readonly int _port;
+        private readonly Action<int, long, int> _actionWithPort;
+
+        public FunctionMidiDataReceiver(int port, Action<int, long, int> actionWithPort)
         {
-            return new FunctionMidiDataReceiver(port, ShortData);
+            _port = port;
+            _actionWithPort = actionWithPort;
         }
 
-        public void ShortData(int data, long timestamp, int port)
+        public void LongData(MidiBufferStream buffer, long timestamp)
         {
-            var sb = new StringBuilder();
-
-            _ = sb.Append($"{port} {timestamp}");
-            var midiEvent = new MidiFileEvent
-            {
-                Message = _factory.CreateShortMessage(data),
-                AbsoluteTime = timestamp
-            };
-
-            foreach (var b in midiEvent.Message.GetData())
-            {
-                _ = sb.AppendFormat(CultureInfo.InvariantCulture, " {0:X}", b);
-            }
-            _logger.LogTrace(sb.ToString());
-            MidiEvent?.Invoke(this, midiEvent);
+            // not used for short midi messages
         }
 
-        public IDisposable Subscribe(IObserver<MidiFileEvent> observer)
+        public void ShortData(int data, long timestamp)
         {
-            return _observable.Subscribe(observer);
-        }
-
-        private class FunctionMidiDataReceiver : IMidiDataReceiver
-        {
-            private readonly int _port;
-            private readonly Action<int, long, int> _actionWithPort;
-
-            public FunctionMidiDataReceiver(int port, Action<int, long, int> actionWithPort)
-            {
-                _port = port;
-                _actionWithPort = actionWithPort;
-            }
-
-            public void LongData(MidiBufferStream buffer, long timestamp)
-            {
-                // not used for short midi messages
-            }
-
-            public void ShortData(int data, long timestamp)
-            {
-                _actionWithPort(data, timestamp, _port);
-            }
+            _actionWithPort(data, timestamp, _port);
         }
     }
 }

@@ -1,58 +1,54 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using CannedBytes.Midi.IO;
 using CannedBytes.Midi.Message;
 
-namespace MidiRecorder.CommandLine
+namespace MidiRecorder.CommandLine;
+
+internal sealed class MidiTrackBuilder
 {
-    internal sealed class MidiTrackBuilder
+    private readonly IEnumerable<MidiFileEvent> _events;
+
+    public MidiTrackBuilder(IEnumerable<MidiFileEvent> events)
     {
-        private readonly IEnumerable<MidiFileEvent> _events;
+        _events = events;
+    }
 
-        public MidiTrackBuilder(IEnumerable<MidiFileEvent> events)
+    public IEnumerable<IEnumerable<MidiFileEvent>> BuildTracks()
+    {
+        var result = from fileEvent in _events
+            group fileEvent by (((MidiShortMessage)fileEvent.Message).Status & 0x0F) into trackGroups
+            orderby trackGroups.Key
+            select trackGroups.Concat(new[] { EndOfTrackMarker(trackGroups) });
+
+        // fix the delta times
+        foreach (var track in result)
         {
-            _events = events;
-        }
+            MidiFileEvent? lastEvent = null;
 
-        public IEnumerable<IEnumerable<MidiFileEvent>> BuildTracks()
-        {
-            var result = from fileEvent in _events
-                         group fileEvent by (((MidiShortMessage)fileEvent.Message).Status & 0x0F) into trackGroups
-                         orderby trackGroups.Key
-                         select trackGroups.Concat(new[] { EndOfTrackMarker(trackGroups) });
-
-            // fix the delta times
-            foreach (var track in result)
+            foreach (var fileEvent in track)
             {
-                MidiFileEvent? lastEvent = null;
-
-                foreach (var fileEvent in track)
+                if (lastEvent != null)
                 {
-                    if (lastEvent != null)
-                    {
-                        fileEvent.DeltaTime = fileEvent.AbsoluteTime - lastEvent.AbsoluteTime;
-                    }
-                    else
-                    {
-                        fileEvent.DeltaTime = 0;
-                    }
-
-                    lastEvent = fileEvent;
+                    fileEvent.DeltaTime = fileEvent.AbsoluteTime - lastEvent.AbsoluteTime;
                 }
+                else
+                {
+                    fileEvent.DeltaTime = 0;
+                }
+
+                lastEvent = fileEvent;
             }
-
-            return result;
         }
 
-        private static MidiFileEvent EndOfTrackMarker(IEnumerable<MidiFileEvent> track)
+        return result;
+    }
+
+    private static MidiFileEvent EndOfTrackMarker(IEnumerable<MidiFileEvent> track)
+    {
+        return new MidiFileEvent
         {
-            return new MidiFileEvent
-            {
-                Message = new MidiMetaMessage(MidiMetaType.EndOfTrack, Array.Empty<byte>()),
-                AbsoluteTime = track.Last().AbsoluteTime + 1,
-                DeltaTime = 1
-            };
-        }
-    }    
+            Message = new MidiMetaMessage(MidiMetaType.EndOfTrack, Array.Empty<byte>()),
+            AbsoluteTime = track.Last().AbsoluteTime + 1,
+            DeltaTime = 1
+        };
+    }
 }

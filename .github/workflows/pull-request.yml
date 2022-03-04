@@ -1,0 +1,26 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+    steps:
+      - uses: actions/checkout@v2
+      - name: ✨ Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: 🏭 Install psake
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module psake
+      - name: 🏭 Configure and run tests
+        shell: pwsh
+        run:  Invoke-Psake ../psakeTasks.ps1 UnitTests -parameters @{"version"="0.1.2-test1";"actor"="${{ github.actor }}"}
