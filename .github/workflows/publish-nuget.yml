@@ -1,4 +1,4 @@
-name: Publish NuGet
+name: Publish NuGet ${{ github.event.inputs.version }}
 
 on:
   workflow_dispatch:
