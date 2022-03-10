@@ -26,6 +26,7 @@ Task Init {
 }
 
 Task Clean -Depends Init {
+    if (Test-Path ./CommandLine/nupkg/) { rm -r -fo ./CommandLine/nupkg/ }
 }
 
 Task Build -Depends Clean {
@@ -56,7 +57,7 @@ Task Push -Depends Pack,UnitTests {
     "📢 NuGet Push"
     Check {
         dotnet nuget push `
-            ./CommandLine/nupkg/scrap.*.nupkg `
+            ./CommandLine/nupkg/*.nupkg `
             --api-key $env:NUGET_AUTH_TOKEN `
             --source https://api.nuget.org/v3/index.json }
 }
