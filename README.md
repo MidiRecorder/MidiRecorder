@@ -1,6 +1,7 @@
-[![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/MidiRecorder/MidiRecorder)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/MidiRecorder/MidiRecorder/total)
+[![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/pull-request.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
+![Nuget](https://img.shields.io/nuget/v/midirec)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/midirec?label=nuget%20pre)
+![Downloads](https://img.shields.io/nuget/dt/midirec)
 
 # 🎹 MIDI Recorder
 
@@ -14,33 +15,42 @@ If you think that there must be an alternative way, you are right!
 
 ## Installation
 
-MIDI Recorder is a Microsoft .NET 5 application, so you will need to have the runtime installed. Please head to the [SDK downloads page](https://dotnet.microsoft.com/download/visual-studio-sdks).
+MIDI Recorder is a Microsoft .NET 6 application, so you will need to have the runtime installed. Please head to the [SDK downloads page](https://dotnet.microsoft.com/download/visual-studio-sdks).
 
-Please head to the [latest release](https://github.com/MidiRecorder/MidiRecorder/releases/latest) and download the ZIP that corresponds to your machine and operating system. Unzip in a folder that is in your PATH.
+You can install the tool with:
+
+```
+dotnet tool install -g midirec
+```
+
+You can also install it on a specific folder, but be aware that if you do so you won't have the `midirec` command available everywhere:
+```
+dotnet tool install --tool-path ./myfolder midirec
+```
 
 ## Usage
 
-MIDI Recorder will give you results without parameters:
+MIDI Recorder can work without parameters:
 ```
-midirec.exe
+midirec
 ```
 
-This way, it will record from all your MIDI inputs at once. Every time it detects a pause of 5 seconds in all the devices, it saves a file with the format `yyyyMMddHHmmss.mid` in your working directory. You can stop recording by pressing any key.
+When called this way, it will record from all your MIDI inputs at once. Every time it detects a pause of 5 seconds in all the devices, it saves a file with the format `yyyyMMddHHmmss.mid` in your current directory. You can stop recording by pressing any key.
 
 You can further customize the behavior by specifying the MIDI inputs to be recorded, the delay and the format of the saved filenames.
 
 ### MIDI Inputs (`-i` or `--input`)
 
-You refer to your MIDI inputs by its name or by its index. To know the indexes and names of the MIDI inputs in your system, use the `list` verb:
+You can refer to your MIDI inputs by its name or by its index. To know the indexes and names of the MIDI inputs in your system, use the `list` verb:
 
 ```
-midirec.exe list
+midirec list
 ```
 
 You can specify several MIDI inputs separating them by commas:
 
 ```
-midirec.exe -i M1,Triton
+midirec -i M1,Triton
 ```
 
 Finally, as said earlier, you can record all available MIDI inputs if you omit the `-i` option.
