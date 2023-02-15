@@ -13,9 +13,9 @@ namespace MidiRecorder.Tests;
 public class MidiSplitterTests
 {
     [TestMethod]
-    public void GroupsToSave_SingleGroupTest()
+    public void Split_SingleGroupTest()
     {
-        var evts = new[]
+        var events = new[]
         {
             Recorded.OnNext(100, "1 C5"),
             Recorded.OnNext(105, "-1 C5"),
@@ -26,7 +26,7 @@ public class MidiSplitterTests
         TimeSpan timeoutToSave = TimeSpan.FromTicks(20);
         TimeSpan delayToSave = TimeSpan.FromTicks(30);
         var scheduler = new TestScheduler();
-        var sut = CreateSplit(scheduler, evts, timeoutToSave, delayToSave);
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave);
 
         var result = sut.SplitGroups;
 
@@ -45,9 +45,9 @@ public class MidiSplitterTests
     }
 
     [TestMethod]
-    public void GroupsToSave_SplitByRelease()
+    public void Split_SplitByRelease()
     {
-        var evts = new[]
+        var events = new[]
         {
             Recorded.OnNext(100, "1 C5"),
             Recorded.OnNext(105, "-1 C5"),
@@ -59,7 +59,7 @@ public class MidiSplitterTests
         TimeSpan delayToSave = TimeSpan.FromTicks(30);
 
         var scheduler = new TestScheduler();
-        var sut = CreateSplit(scheduler, evts, timeoutToSave, delayToSave);
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave);
 
         var result = sut.SplitGroups;
 
@@ -73,9 +73,9 @@ public class MidiSplitterTests
     }
 
     [TestMethod]
-    public void GroupsToSave_SplitByHeldNote()
+    public void Split_SplitByHeldNote()
     {
-        var evts = new[]
+        var events = new[]
         {
             Recorded.OnNext(100, " 1 C5"),
             Recorded.OnNext(105, "-1 C5"),
@@ -89,7 +89,7 @@ public class MidiSplitterTests
         TimeSpan delayToSave = TimeSpan.FromTicks(30);
 
         var scheduler = new TestScheduler();
-        var sut = CreateSplit(scheduler, evts, timeoutToSave, delayToSave);
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave);
 
         var result = sut.SplitGroups;
 
@@ -113,9 +113,61 @@ public class MidiSplitterTests
     }
 
     [TestMethod]
+    public void Split_OtherEventsAreIgnored()
+    {
+        var events = new[]
+        {
+            Recorded.OnNext(100, " 1 C5"),
+            Recorded.OnNext(103, " 0 event"),
+            Recorded.OnNext(105, "-1 C5"),
+            Recorded.OnNext(110, " 0 event"),
+            Recorded.OnNext(120, " 0 event"),
+            Recorded.OnNext(130, " 0 event"),
+            Recorded.OnNext(140, " 0 event"),
+            Recorded.OnNext(150, " 0 event"),
+            Recorded.OnNext(160, " 0 event"),
+            Recorded.OnNext(200, " 1 C7"),
+            Recorded.OnNext(202, " 0 event"),
+            Recorded.OnNext(205, "-1 C7")
+        };
+
+        TimeSpan timeoutToSave = TimeSpan.FromTicks(20);
+        TimeSpan delayToSave = TimeSpan.FromTicks(30);
+
+        var scheduler = new TestScheduler();
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave);
+
+        var result = sut.SplitGroups;
+
+        var result2 = PrepareResult(result, scheduler);
+        result2.Should().BeEquivalentTo(
+            new[]
+            {
+                new[]
+                {
+                    Recorded.Create(101, " 1 C5"),
+                    Recorded.Create(104, " 0 event"),
+                    Recorded.Create(106, "-1 C5"),
+                    Recorded.Create(111, " 0 event"),
+                    Recorded.Create(121, " 0 event"),
+                    Recorded.Create(131, " 0 event"),
+                },
+                new[]
+                {
+                    Recorded.Create(141, " 0 event"),
+                    Recorded.Create(151, " 0 event"),
+                    Recorded.Create(161, " 0 event"),
+                    Recorded.Create(201, " 1 C7"),
+                    Recorded.Create(203, " 0 event"),
+                    Recorded.Create(206, "-1 C7")
+                }
+            });
+    }
+
+    [TestMethod]
     public void GroupsToSave_SplitByHeldNote2()
     {
-        var evts = new[]
+        var events = new[]
         {
             Recorded.OnNext(100, " 1 C5"),
             Recorded.OnNext(105, "-1 C5"),
@@ -129,7 +181,7 @@ public class MidiSplitterTests
         TimeSpan delayToSave = TimeSpan.FromTicks(30);
 
         var scheduler = new TestScheduler();
-        var sut = CreateSplit(scheduler, evts, timeoutToSave, delayToSave);
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave);
 
         var result = sut.SplitGroups;
 
@@ -152,10 +204,10 @@ public class MidiSplitterTests
             });
     }
 
-    private static MidiSplit<string> CreateSplit(TestScheduler scheduler, Recorded<Notification<string>>[] evts,
+    private static MidiSplit<string> CreateSplit(TestScheduler scheduler, Recorded<Notification<string>>[] events,
         TimeSpan timeoutToSave, TimeSpan delayToSave)
     {
-        var allEvents = scheduler.CreateColdObservable(evts);
+        var allEvents = scheduler.CreateColdObservable(events);
         var sut = new MidiSplitter<string>(scheduler);
         var split = sut.Split(allEvents, NoteAndSustainPedalCount, timeoutToSave, delayToSave);
         return split;
