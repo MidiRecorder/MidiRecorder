@@ -1,10 +1,8 @@
-using NAudio.Midi;
-
 namespace MidiRecorder.Application.Implementation;
 
-public class NAudioMidiSourceBuilder : IMidiSourceBuilder<MidiEvent>
+public class NAudioMidiSourceBuilder : IMidiSourceBuilder<MidiEventWithPort>
 {
-    public IMidiSource<MidiEvent> Build(TypedRecordOptions typedOptions)
+    public IMidiSource<MidiEventWithPort> Build(TypedRecordOptions typedOptions)
     {
         return new NAudioMidiSource(typedOptions);
     }

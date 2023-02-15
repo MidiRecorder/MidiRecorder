@@ -11,16 +11,19 @@ public class MidiRecorderApplicationService<TMidiEvent>
     private readonly ILogger<MidiRecorderApplicationService<TMidiEvent>> _logger;
     private readonly IMidiSourceBuilder<TMidiEvent> _sourceBuilder;
     private readonly IMidiSplitter<TMidiEvent> _splitter;
+    private readonly IMidiTrackBuilder<TMidiEvent> _trackBuilder;
 
     public MidiRecorderApplicationService(IMidiSourceBuilder<TMidiEvent> sourceBuilder,
         ILogger<MidiRecorderApplicationService<TMidiEvent>> logger, IMidiFileSaver<TMidiEvent> fileSaver,
-        IMidiEventAnalyzer<TMidiEvent> analyzer, IMidiSplitter<TMidiEvent> splitter)
+        IMidiEventAnalyzer<TMidiEvent> analyzer, IMidiSplitter<TMidiEvent> splitter,
+        IMidiTrackBuilder<TMidiEvent> trackBuilder)
     {
         _sourceBuilder = sourceBuilder;
         _logger = logger;
         _fileSaver = fileSaver;
         _analyzer = analyzer;
         _splitter = splitter;
+        _trackBuilder = trackBuilder;
     }
 
     public IDisposable StartRecording(TypedRecordOptions options)
@@ -31,6 +34,16 @@ public class MidiRecorderApplicationService<TMidiEvent>
 
         (TimeSpan delayToSave, TimeSpan timeoutToSave, var pathFormatString, var midiResolution, _) = options;
 
+        var allEvents = source.AllEvents;
+        var split = _splitter.Split(allEvents, _analyzer.NoteAndSustainPedalCount, timeoutToSave, delayToSave);
+        _ = allEvents.ForEachAsync(e => _logger.LogTrace("{MidiEvent}", e));
+        _ = split.AdjustedReleaseMarkers.ForEachAsync(_ => _logger.LogTrace("All Notes/Pedals Off!"));
+        _ = split.SplitGroups.Select(x => x.Aggregate(ImmutableList<TMidiEvent>.Empty, (l, i) => l.Add(i)))
+            .ForEachAsync(e => e.ForEachAsync(SaveMidiFile));
+
+        source.StartReceiving();
+        return source;
+        
         void SaveMidiFile(IEnumerable<TMidiEvent> eventList)
         {
             var midiEvents = eventList as TMidiEvent[] ?? eventList.ToArray();
@@ -39,7 +52,8 @@ public class MidiRecorderApplicationService<TMidiEvent>
             _logger.LogInformation("Saving {EventCount} events to file {FilePath}...", midiEvents.Length, filePath);
             try
             {
-                _fileSaver.Save(midiEvents, filePath, midiResolution);
+                IEnumerable<IEnumerable<TMidiEvent>> tracks = _trackBuilder.BuildTracks(midiEvents);
+                _fileSaver.Save(tracks, filePath, midiResolution);
             }
 #pragma warning disable CA1031
             catch (Exception ex)
@@ -48,17 +62,6 @@ public class MidiRecorderApplicationService<TMidiEvent>
                 _logger.LogError(ex, "There was an error when saving the file");
             }
         }
-
-        var allEvents = source.AllEvents;
-        var split = _splitter.Split(allEvents, _analyzer.NoteAndSustainPedalCount, timeoutToSave, delayToSave);
-        _ = allEvents.ForEachAsync(e => _logger.LogTrace("{MidiEvent}", e));
-        _ = split.AdjustedReleaseMarkers.ForEachAsync(_ => _logger.LogTrace("All Notes/Pedals Off!"));
-
-        _ = split.SplitGroups.Select(x => x.Aggregate(ImmutableList<TMidiEvent>.Empty, (l, i) => l.Add(i)))
-            .ForEachAsync(e => e.ForEachAsync(SaveMidiFile));
-
-        source.StartReceiving();
-        return source;
     }
 
     private void PrintOptions(TypedRecordOptions options)

@@ -59,16 +59,18 @@ int Record(RecordOptions options)
         return 1;
     }
 
-    var feeder = new NAudioMidiSourceBuilder();
+    var sourceBuilder = new NAudioMidiSourceBuilder();
     var saver = new NAudioMidiFileSaver();
     var analyzer = new NAudioMidiEventAnalyzer();
-    var splitter = new MidiSplitter<MidiEvent>();
-    var svc = new MidiRecorderApplicationService<MidiEvent>(
-        feeder,
-        loggerFactory.CreateLogger<MidiRecorderApplicationService<MidiEvent>>(),
+    var splitter = new MidiSplitter<MidiEventWithPort>();
+    var trackBuilder = new NAudioMidiTrackBuilder();
+    var svc = new MidiRecorderApplicationService<MidiEventWithPort>(
+        sourceBuilder,
+        loggerFactory.CreateLogger<MidiRecorderApplicationService<MidiEventWithPort>>(),
         saver,
         analyzer,
-        splitter);
+        splitter,
+        trackBuilder);
 
     using IDisposable _ = svc.StartRecording(typedOptions);
     logger.LogInformation("Recording started, Press any key to quit");

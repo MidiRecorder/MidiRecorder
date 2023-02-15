@@ -1,6 +1,6 @@
 namespace MidiRecorder.Application;
 
-public interface IMidiFileSaver<TMidiEvent>
+public interface IMidiFileSaver<in TMidiEvent>
 {
-    void Save(IEnumerable<TMidiEvent> events, string filePath, int timeDivision);
+    void Save(IEnumerable<IEnumerable<TMidiEvent>> events, string filePath, int timeDivision);
 }

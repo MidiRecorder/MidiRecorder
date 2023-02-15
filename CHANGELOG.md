@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
-- Create tracks by channel and/or port.
+
+## [1.1.0] - 2023-02-15
+
+### Added
+- Split files after all notes and sustain pedal are released.
+- Create tracks by channel/port
 
 ## [1.0.3] - 2021-03-20
 
