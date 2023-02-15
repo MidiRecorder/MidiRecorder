@@ -1,12 +1,12 @@
-namespace MidiRecorder.CommandLine;
+namespace MidiRecorder.Application;
 
 public sealed class RecordResult : IDisposable
 {
-    private readonly Action? _action;
+    private readonly Action? _disposeAction;
 
-    public RecordResult(Action action)
+    public RecordResult(Action disposeAction)
     {
-        _action = action;
+        _disposeAction = disposeAction;
         ErrorMessage = null;
     }
 
@@ -20,6 +20,6 @@ public sealed class RecordResult : IDisposable
 
     public void Dispose()
     {
-        _action?.Invoke();
+        _disposeAction?.Invoke();
     }
 }

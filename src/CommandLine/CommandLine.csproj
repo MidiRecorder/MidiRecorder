@@ -34,23 +34,32 @@
 
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="Cannedbytes.Midi" Version="2.0.2" />
-    <PackageReference Include="CannedBytes.Midi.IO" Version="2.0.2" />
-    <PackageReference Include="CannedBytes.Midi.Message" Version="2.0.2" />
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Remove="nupkg\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="nupkg\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="nupkg\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Implementation\Implementation.csproj" />
   </ItemGroup>
 
 </Project>

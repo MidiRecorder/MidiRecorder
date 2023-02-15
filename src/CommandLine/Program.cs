@@ -1,11 +1,13 @@
 ﻿using System.Reflection;
-using CannedBytes.Midi;
 using CommandLine;
 using CommandLine.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MidiRecorder.Application;
+using MidiRecorder.Application.Implementation;
 using MidiRecorder.CommandLine;
 using MidiRecorder.CommandLine.Logging;
+using NAudio.Midi;
 
 const string environmentVarPrefix = "MidiRecorder_";
 var config = new ConfigurationBuilder()
@@ -38,17 +40,17 @@ return parserResult
 
 int ListMidiInputs(ListMidiInputsOptions options)
 {
-    var midiInCapabilities = new MidiInPortCapsCollection();
+    var midiInputService = new MidiInputService(loggerFactory.CreateLogger<MidiInputService>());
+    var midiInCapabilities = midiInputService.GetMidiInputs().ToArray();
 
-    if (midiInCapabilities.Count == 0)
+    if (!midiInCapabilities.Any())
     {
-        LoggerMessage.Define<string>(LogLevel.Error, 0, "No MIDI inputs {Xxx}");
         logger.LogError("No MIDI inputs");
     }
 
-    foreach (var x in midiInCapabilities.Select((port, idx) => (port, idx)))
+    foreach (var x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
     {
-        Console.WriteLine($"{x.idx}. {x.port.Name}");
+        Console.WriteLine($"{x.idx}. {x.midiInput.Name}");
     }
 
     return 0;
@@ -56,16 +58,29 @@ int ListMidiInputs(ListMidiInputsOptions options)
 
 int Record(RecordOptions options)
 {
-    var svc = new MidiRecorderApplicationService(logger);
+    var midiInputService = new MidiInputService(loggerFactory.CreateLogger<MidiInputService>());
+    var validator = new OptionsValidator(midiInputService);
+    (TypedRecordOptions? typedOptions, var errorMessage) = validator.Validate(options);
 
-    using RecordResult stop = svc.StartRecording(options);
-
-    if (stop.IsError)
+    if (typedOptions == null)
     {
+        Console.WriteLine(errorMessage);
         DisplayHelp(parserResult, Enumerable.Empty<Error>());
         return 1;
     }
 
+    var feeder = new NAudioMidiSourceBuilder();
+    var saver = new NAudioMidiFileSaver();
+    var analyzer = new NAudioMidiEventAnalyzer();
+    var splitter = new MidiSplitter<MidiEvent>();
+    var svc = new MidiRecorderApplicationService<NAudio.Midi.MidiEvent>(
+        feeder,
+        loggerFactory.CreateLogger<MidiRecorderApplicationService<NAudio.Midi.MidiEvent>>(),
+        saver,
+        analyzer,
+        splitter);
+
+    using var _ = svc.StartRecording(typedOptions);
     logger.LogInformation("Recording started, Press any key to quit");
     Console.ReadLine();
     return 0;
