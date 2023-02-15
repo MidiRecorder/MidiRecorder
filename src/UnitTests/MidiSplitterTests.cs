@@ -10,7 +10,7 @@ using MidiRecorder.Application;
 namespace MidiRecorder.Tests;
 
 [TestClass]
-public class MidiRecorderApplicationServiceTests
+public class MidiSplitterTests
 {
     [TestMethod]
     public void GroupsToSave_SingleGroupTest()
