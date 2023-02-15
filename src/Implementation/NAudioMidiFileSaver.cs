@@ -14,10 +14,7 @@ public class NAudioMidiFileSaver : IMidiFileSaver<MidiEventWithPort>
 
         var midiEventCollection = new MidiEventCollection(1, timeDivision);
         foreach (var track in tracks)
-        {
-            midiEventCollection.AddTrack(
-                track.Select(mp => mp.MidiEvent).ToList());
-        }
+            midiEventCollection.AddTrack(track.Select(mp => mp.MidiEvent).ToList());
 
         MidiFile.Export(filePath, midiEventCollection);
     }

@@ -15,7 +15,9 @@ internal class OptionsValidator : IOptionsValidator
     {
         var inputIds = options.MidiInputs.SelectMany(_service.GetMidiInputId).Distinct().ToArray();
         if (inputIds.Length == 0)
+        {
             return (null, $"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
+        }
 
         return (
             new TypedRecordOptions(

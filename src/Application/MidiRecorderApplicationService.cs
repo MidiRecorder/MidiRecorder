@@ -43,7 +43,7 @@ public class MidiRecorderApplicationService<TMidiEvent>
 
         source.StartReceiving();
         return source;
-        
+
         void SaveMidiFile(IEnumerable<TMidiEvent> eventList)
         {
             var midiEvents = eventList as TMidiEvent[] ?? eventList.ToArray();
@@ -52,7 +52,7 @@ public class MidiRecorderApplicationService<TMidiEvent>
             _logger.LogInformation("Saving {EventCount} events to file {FilePath}...", midiEvents.Length, filePath);
             try
             {
-                IEnumerable<IEnumerable<TMidiEvent>> tracks = _trackBuilder.BuildTracks(midiEvents);
+                var tracks = _trackBuilder.BuildTracks(midiEvents);
                 _fileSaver.Save(tracks, filePath, midiResolution);
             }
 #pragma warning disable CA1031

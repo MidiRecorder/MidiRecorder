@@ -7,23 +7,44 @@ internal static class TextWriterExtensions
 
     public static void SetForegroundColor(this TextWriter textWriter, ConsoleColor? foreground)
     {
-        if (foreground.HasValue) textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
+        if (foreground.HasValue)
+        {
+            textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
+        }
     }
 
     public static void ResetForegroundColor(this TextWriter textWriter, ConsoleColor? foreground)
     {
-        if (foreground.HasValue) textWriter.Write(DefaultForegroundColor); // reset to default foreground color
+        if (foreground.HasValue)
+        {
+            textWriter.Write(DefaultForegroundColor); // reset to default foreground color
+        }
     }
 
     public static void WriteColoredMessage(this TextWriter textWriter, string message, ConsoleColor? background,
         ConsoleColor? foreground)
     {
         // Order: background color, foreground color, Message, reset foreground color, reset background color
-        if (background.HasValue) textWriter.Write(background.Value.GetBackgroundColorEscapeCode());
-        if (foreground.HasValue) textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
+        if (background.HasValue)
+        {
+            textWriter.Write(background.Value.GetBackgroundColorEscapeCode());
+        }
+
+        if (foreground.HasValue)
+        {
+            textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
+        }
+
         textWriter.Write(message);
-        if (foreground.HasValue) textWriter.Write(DefaultForegroundColor); // reset to default foreground color
-        if (background.HasValue) textWriter.Write(DefaultBackgroundColor); // reset to the background color
+        if (foreground.HasValue)
+        {
+            textWriter.Write(DefaultForegroundColor); // reset to default foreground color
+        }
+
+        if (background.HasValue)
+        {
+            textWriter.Write(DefaultBackgroundColor); // reset to the background color
+        }
     }
 
     private static string GetForegroundColorEscapeCode(this ConsoleColor color)

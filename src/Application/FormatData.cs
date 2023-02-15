@@ -22,7 +22,10 @@ internal class FormatData<TMidiEvent>
 
     private T? Memoize<T>(string key, Func<T> expression)
     {
-        if (!_memoStore.ContainsKey(key)) _memoStore.Add(key, expression());
+        if (!_memoStore.ContainsKey(key))
+        {
+            _memoStore.Add(key, expression());
+        }
 
         return (T?)_memoStore[key];
     }
