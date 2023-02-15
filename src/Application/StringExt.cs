@@ -1,51 +1,44 @@
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 
-namespace MidiRecorder.CommandLine;
+namespace MidiRecorder.Application;
 
 public static class StringExt
 {
     public static string Format(string formatString, object data)
     {
-        object? GetPropertyValue(object target, string propertyName) 
+        static object? GetPropertyValue(object target, string propertyName)
         {
             if (target == null)
-            {
-                throw new ArgumentNullException(nameof(data), "The format string has placeholders and you passed null data.");
-            }
+                throw new ArgumentNullException(
+                    nameof(target),
+                    "The format string has placeholders and you passed null data.");
 
-            var propertyInfo = target.GetType().GetProperty(propertyName);
-            if (propertyInfo == null)
-            {
-                if (target is ValueTuple)
-                {
-                    throw new ArgumentException(
-                        $"Property {propertyName} not found. Don't ValueTuple like (PropA:ValA, PropB: ValB). Instead use anonymous object syntax: new {{ PropA = ValA, PropB = ValB }}.",
-                        nameof(propertyName));
-                }
+            PropertyInfo? propertyInfo = target.GetType().GetProperty(propertyName);
+            if (propertyInfo != null) return propertyInfo.GetValue(target, null);
 
+            if (target is ValueTuple)
                 throw new ArgumentException(
-                    $"Property {propertyName} not found.",
+                    $"Property {propertyName} not found. Don't use ValueTuple like (PropA:ValA, PropB: ValB). Instead use anonymous object syntax: new {{ PropA = ValA, PropB = ValB }}.",
                     nameof(propertyName));
-            }
 
-            return propertyInfo.GetValue(target, null);
+            throw new ArgumentException($"Property {propertyName} not found.", nameof(propertyName));
         }
 
         var (format, itemNames) = TranslateToStandardFormatString(formatString);
         return string.Format(
-            CultureInfo.InvariantCulture,
+            CultureInfo.CurrentCulture,
             format,
             itemNames.Select(itemName => GetPropertyValue(data, itemName)).ToArray());
     }
 
-
     public static (string format, List<string> itemNames) TranslateToStandardFormatString(string formatString)
     {
         if (string.IsNullOrWhiteSpace(formatString))
-        {
-            throw new ArgumentException($"'{nameof(formatString)}' cannot be null or whitespace.", nameof(formatString));
-        }
+            throw new ArgumentException(
+                $"'{nameof(formatString)}' cannot be null or whitespace.",
+                nameof(formatString));
 
         var stringFormatBuilder = new StringBuilder(formatString.Length);
         var state = ParseState.Outside;
@@ -66,7 +59,6 @@ public static class StringExt
         }
 
         foreach (var character in formatString)
-        {
             switch ((state, character))
             {
                 case (ParseState.Outside, '{'):
@@ -112,8 +104,8 @@ public static class StringExt
                     stringFormatBuilder.Append(character);
                     break;
             }
-        }
-        return (stringFormatBuilder.ToString(), itemNames);       
+
+        return (stringFormatBuilder.ToString(), itemNames);
     }
 
     private enum ParseState
@@ -121,6 +113,6 @@ public static class StringExt
         Outside,
         OpenBracket,
         ItemName,
-        ItemAlignmentOrFormat,
+        ItemAlignmentOrFormat
     }
 }

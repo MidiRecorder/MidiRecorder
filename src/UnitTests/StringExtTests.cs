@@ -1,9 +1,23 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MidiRecorder.CommandLine;
+using MidiRecorder.Application;
 
 namespace MidiRecorder.Tests;
+
+public static class TestSchedulerExtensions
+{
+    public static Recorded<T>[] WaitAndGetRecorded<T>(this IObservable<T> o, TestScheduler scheduler)
+    {
+        var testObserver = scheduler.Start(() => o, 0, 0, 5000);
+
+        return testObserver.Messages.Select(r => new Recorded<T>(r.Time, r.Value.Value)).ToArray();
+    }
+}
 
 [TestClass]
 public class StringExtTests
@@ -19,7 +33,9 @@ public class StringExtTests
     [TestMethod]
     public void Format_EmptyBraces_ThrowsFormatException()
     {
-        Action action = () => StringExt.Format("{Number} {Date:yyyyMM}-{}", new { Number = 234, Date = new DateTime(2021, 02, 14) });
+        Action action = () => StringExt.Format(
+            "{Number} {Date:yyyyMM}-{}",
+            new { Number = 234, Date = new DateTime(2021, 02, 14) });
 
         action.Should().Throw<FormatException>();
     }
@@ -27,7 +43,9 @@ public class StringExtTests
     [TestMethod]
     public void Format_NoItemNameAndThenColon_ThrowsFormatException()
     {
-        Action action = () => StringExt.Format("{Number} {:yyyyMM}-{}", new { Number = 234, Date = new DateTime(2021, 02, 14) });
+        Action action = () => StringExt.Format(
+            "{Number} {:yyyyMM}-{}",
+            new { Number = 234, Date = new DateTime(2021, 02, 14) });
 
         action.Should().Throw<FormatException>();
     }
@@ -35,7 +53,9 @@ public class StringExtTests
     [TestMethod]
     public void Format_NoItemNameAndThenComma_ThrowsFormatException()
     {
-        Action action = () => StringExt.Format("{Number} {,7}-{}", new { Number = 234, Date = new DateTime(2021, 02, 14) });
+        Action action = () => StringExt.Format(
+            "{Number} {,7}-{}",
+            new { Number = 234, Date = new DateTime(2021, 02, 14) });
 
         action.Should().Throw<FormatException>();
     }
@@ -88,4 +108,31 @@ public class StringExtTests
     }
 
     public record TestRecord(int Number, DateTime Date);
+}
+
+public class TestLogger<T> : ILogger<T>, IDisposable
+{
+    private readonly List<string> _traces = new();
+
+    public IEnumerable<string> Traces => _traces;
+
+    public void Dispose()
+    {
+    }
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+        Func<TState, Exception, string> formatter)
+    {
+        _traces.Add(state.ToString());
+    }
+
+    public bool IsEnabled(LogLevel logLevel)
+    {
+        return true;
+    }
+
+    public IDisposable BeginScope<TState>(TState state)
+    {
+        return this;
+    }
 }
