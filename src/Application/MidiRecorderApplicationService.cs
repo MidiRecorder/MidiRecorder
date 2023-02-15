@@ -50,12 +50,11 @@ public class MidiRecorderApplicationService<TMidiEvent>
         }
 
         var allEvents = source.AllEvents;
-        var x = new MidiSplitter<TMidiEvent>();
-        var helper = x.Build(allEvents, _analyzer.NoteAndSustainPedalCount, timeoutToSave, delayToSave);
+        var split = _splitter.Split(allEvents, _analyzer.NoteAndSustainPedalCount, timeoutToSave, delayToSave);
         _ = allEvents.ForEachAsync(e => _logger.LogTrace("{MidiEvent}", e));
-        _ = helper.AdjustedReleaseMarkers.ForEachAsync(_ => _logger.LogTrace("All Notes/Pedals Off!"));
+        _ = split.AdjustedReleaseMarkers.ForEachAsync(_ => _logger.LogTrace("All Notes/Pedals Off!"));
 
-        _ = helper.SplitGroups.Select(x => x.Aggregate(ImmutableList<TMidiEvent>.Empty, (l, i) => l.Add(i)))
+        _ = split.SplitGroups.Select(x => x.Aggregate(ImmutableList<TMidiEvent>.Empty, (l, i) => l.Add(i)))
             .ForEachAsync(e => e.ForEachAsync(SaveMidiFile));
 
         source.StartReceiving();

@@ -37,7 +37,7 @@ public class MidiSplitter<TMidiEvent> : IMidiSplitter<TMidiEvent>
         _scheduler = scheduler ?? Scheduler.Default;
     }
 
-    public MidiSplit<TMidiEvent> Build(IObservable<TMidiEvent> allEvents,
+    public MidiSplit<TMidiEvent> Split(IObservable<TMidiEvent> allEvents,
         Func<TMidiEvent, int> noteAndSustainPedalCount, TimeSpan timeoutToSave, TimeSpan delayToSave)
     {
         IScheduler scheduler1 = _scheduler ?? DefaultScheduler.Instance;
