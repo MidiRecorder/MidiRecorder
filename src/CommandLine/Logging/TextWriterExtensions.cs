@@ -2,49 +2,33 @@ namespace MidiRecorder.CommandLine.Logging;
 
 internal static class TextWriterExtensions
 {
+    private const string DefaultForegroundColor = "\u001B[39m\u001B[22m";
+    private const string DefaultBackgroundColor = "\u001B[49m";
+
     public static void SetForegroundColor(this TextWriter textWriter, ConsoleColor? foreground)
     {
-        if (foreground.HasValue)
-        {
-            textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
-        }
+        if (foreground.HasValue) textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
     }
 
     public static void ResetForegroundColor(this TextWriter textWriter, ConsoleColor? foreground)
     {
-        if (foreground.HasValue)
-        {
-            textWriter.Write(DefaultForegroundColor); // reset to default foreground color
-        }
+        if (foreground.HasValue) textWriter.Write(DefaultForegroundColor); // reset to default foreground color
     }
 
-    public static void WriteColoredMessage(this TextWriter textWriter, string message, ConsoleColor? background, ConsoleColor? foreground)
+    public static void WriteColoredMessage(this TextWriter textWriter, string message, ConsoleColor? background,
+        ConsoleColor? foreground)
     {
         // Order: background color, foreground color, Message, reset foreground color, reset background color
-        if (background.HasValue)
-        {
-            textWriter.Write(background.Value.GetBackgroundColorEscapeCode());
-        }
-        if (foreground.HasValue)
-        {
-            textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
-        }
+        if (background.HasValue) textWriter.Write(background.Value.GetBackgroundColorEscapeCode());
+        if (foreground.HasValue) textWriter.Write(foreground.Value.GetForegroundColorEscapeCode());
         textWriter.Write(message);
-        if (foreground.HasValue)
-        {
-            textWriter.Write(DefaultForegroundColor); // reset to default foreground color
-        }
-        if (background.HasValue)
-        {
-            textWriter.Write(DefaultBackgroundColor); // reset to the background color
-        }
+        if (foreground.HasValue) textWriter.Write(DefaultForegroundColor); // reset to default foreground color
+        if (background.HasValue) textWriter.Write(DefaultBackgroundColor); // reset to the background color
     }
 
-    private const string DefaultForegroundColor = "\u001B[39m\u001B[22m";
-    private const string DefaultBackgroundColor = "\u001B[49m";
-
-    private static string GetForegroundColorEscapeCode(this ConsoleColor color) =>
-        color switch
+    private static string GetForegroundColorEscapeCode(this ConsoleColor color)
+    {
+        return color switch
         {
             ConsoleColor.Black => "\u001B[30m",
             ConsoleColor.DarkBlue => "\u001B[34m",
@@ -63,9 +47,11 @@ internal static class TextWriterExtensions
             ConsoleColor.White => "\u001B[1m\u001B[37m",
             _ => "\u001B[39m\u001B[22m"
         };
+    }
 
-    private static string GetBackgroundColorEscapeCode(this ConsoleColor color) =>
-        color switch
+    private static string GetBackgroundColorEscapeCode(this ConsoleColor color)
+    {
+        return color switch
         {
             ConsoleColor.Black => "\u001B[40m",
             ConsoleColor.DarkBlue => "\u001B[44m",
@@ -77,4 +63,5 @@ internal static class TextWriterExtensions
             ConsoleColor.Gray => "\u001B[47m",
             _ => "\u001B[49m"
         };
+    }
 }

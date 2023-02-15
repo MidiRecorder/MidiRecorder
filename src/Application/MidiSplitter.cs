@@ -5,7 +5,10 @@ namespace MidiRecorder.Application;
 
 public class MidiSplit<TMidiEvent>
 {
-    public MidiSplit(IObservable<int> heldNotesAndPedals, IObservable<char> heldNotesAndPedalsTimeoutMarkers, IObservable<int> adjustedHeldNotesAndPedals, IObservable<char> adjustedReleaseMarkers, IObservable<char> globalReleaseSavingPoints, IObservable<char> savingPoints, IObservable<IObservable<TMidiEvent>> splitGroups)
+    public MidiSplit(IObservable<int> heldNotesAndPedals, IObservable<char> heldNotesAndPedalsTimeoutMarkers,
+        IObservable<int> adjustedHeldNotesAndPedals, IObservable<char> adjustedReleaseMarkers,
+        IObservable<char> globalReleaseSavingPoints, IObservable<char> savingPoints,
+        IObservable<IObservable<TMidiEvent>> splitGroups)
     {
         HeldNotesAndPedals = heldNotesAndPedals;
         HeldNotesAndPedalsTimeoutMarkers = heldNotesAndPedalsTimeoutMarkers;
@@ -33,11 +36,9 @@ public class MidiSplitter<TMidiEvent> : IMidiSplitter<TMidiEvent>
     {
         _scheduler = scheduler ?? Scheduler.Default;
     }
-    public MidiSplit<TMidiEvent> Build(
-        IObservable<TMidiEvent> allEvents,
-        Func<TMidiEvent, int> noteAndSustainPedalCount,
-        TimeSpan timeoutToSave,
-        TimeSpan delayToSave)
+
+    public MidiSplit<TMidiEvent> Build(IObservable<TMidiEvent> allEvents,
+        Func<TMidiEvent, int> noteAndSustainPedalCount, TimeSpan timeoutToSave, TimeSpan delayToSave)
     {
         IScheduler scheduler1 = _scheduler ?? DefaultScheduler.Instance;
         const char marker = 'm';
@@ -48,14 +49,12 @@ public class MidiSplitter<TMidiEvent> : IMidiSplitter<TMidiEvent>
 
         // Finds points where a note or pedal is held for too long
         // (The marker is at the end of such a pause)
-        var heldNotesAndPedalsTimeoutMarkers = heldNotesAndPedals
-            .Throttle(timeoutToSave, scheduler1)
-            .Where(x => x > 0)
+        var heldNotesAndPedalsTimeoutMarkers = heldNotesAndPedals.Throttle(timeoutToSave, scheduler1).Where(x => x > 0)
             .Select(_ => marker);
 
         // Introduce a zero in held notes and pedals where a note or pedal is held for too long
-        var adjustedHeldNotesAndPedals = Observable
-            .Merge(heldNotesAndPedals, heldNotesAndPedalsTimeoutMarkers.Select(_ => 0)).DistinctUntilChanged();
+        var adjustedHeldNotesAndPedals = heldNotesAndPedals.Merge(heldNotesAndPedalsTimeoutMarkers.Select(_ => 0))
+            .DistinctUntilChanged();
 
         // Release markers (after removing notes and pedals held for too long)
         var adjustedReleaseMarkers = adjustedHeldNotesAndPedals.Where(x => x == 0).Select(_ => marker);
@@ -63,7 +62,7 @@ public class MidiSplitter<TMidiEvent> : IMidiSplitter<TMidiEvent>
         // Remove releases that are too close to each other
         var globalReleaseSavingPoints = adjustedReleaseMarkers.Throttle(delayToSave, scheduler1).Select(_ => marker);
 
-        var savingPoints = Observable.Merge(heldNotesAndPedalsTimeoutMarkers, globalReleaseSavingPoints);
+        var savingPoints = heldNotesAndPedalsTimeoutMarkers.Merge(globalReleaseSavingPoints);
 
         var splitGroups = allEvents.Window(savingPoints);
 

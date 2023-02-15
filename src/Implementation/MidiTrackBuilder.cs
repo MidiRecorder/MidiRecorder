@@ -14,7 +14,8 @@ internal sealed class MidiTrackBuilder
     public IEnumerable<IEnumerable<MidiEvent>> BuildTracks()
     {
         return from fileEvent in _events
-            group fileEvent by fileEvent.Channel into trackGroups
+            group fileEvent by fileEvent.Channel
+            into trackGroups
             orderby trackGroups.Key
             let x = trackGroups.Concat(new[] { EndOfTrackMarker(trackGroups) })
             select x;

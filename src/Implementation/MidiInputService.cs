@@ -14,16 +14,11 @@ public class MidiInputService : IMidiInputService
 
     public IEnumerable<MidiInput> GetMidiInputs()
     {
-        for (int device = 0; device < MidiIn.NumberOfDevices; device++)
+        for (var device = 0; device < MidiIn.NumberOfDevices; device++)
         {
             MidiInCapabilities midiInCapabilities = MidiIn.DeviceInfo(device);
             yield return CreateMidiInput(midiInCapabilities);
         }
-    }
-
-    private MidiInput CreateMidiInput(MidiInCapabilities capabilities)
-    {
-        return new MidiInput(capabilities.ProductName);
     }
 
     public IEnumerable<int> GetMidiInputId(string midiInputName)
@@ -38,24 +33,20 @@ public class MidiInputService : IMidiInputService
 
         if (midiInputName == "*")
         {
-            foreach (int i in Enumerable.Range(0, midiInCapabilities.Length))
+            foreach (var i in Enumerable.Range(0, midiInCapabilities.Length))
             {
                 _logger.LogInformation("MIDI Input: {Name}", midiInCapabilities[i].Name);
                 yield return i;
             }
+
             yield break;
         }
 
         int? selectedIdx = null;
-        if (int.TryParse(midiInputName, out var s))
-        {
-            selectedIdx = s >= 0 && s < midiInCapabilities.Length ? s : null;
-        }
+        if (int.TryParse(midiInputName, out var s)) selectedIdx = s >= 0 && s < midiInCapabilities.Length ? s : null;
 
-        selectedIdx ??= midiInCapabilities
-            .Select((port, idx) => new {port, idx})
-            .FirstOrDefault(x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))
-            ?.idx;
+        selectedIdx ??= midiInCapabilities.Select((port, idx) => new { port, idx }).FirstOrDefault(
+            x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))?.idx;
 
         if (selectedIdx == null)
         {
@@ -65,5 +56,10 @@ public class MidiInputService : IMidiInputService
 
         _logger.LogInformation("MIDI Input: {Name}", midiInCapabilities[selectedIdx.Value].Name);
         yield return selectedIdx.Value;
+    }
+
+    private MidiInput CreateMidiInput(MidiInCapabilities capabilities)
+    {
+        return new MidiInput(capabilities.ProductName);
     }
 }

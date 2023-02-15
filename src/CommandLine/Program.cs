@@ -10,48 +10,38 @@ using MidiRecorder.CommandLine.Logging;
 using NAudio.Midi;
 
 const string environmentVarPrefix = "MidiRecorder_";
-var config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-    .AddEnvironmentVariables(prefix: environmentVarPrefix)
-    .Build();
+IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, false)
+    .AddEnvironmentVariables(environmentVarPrefix).Build();
 
-using var loggerFactory = LoggerFactory.Create(builder =>
-{
-    builder.ClearProviders();
-    builder.AddConfiguration(config.GetSection("Logging"));
+using ILoggerFactory? loggerFactory = LoggerFactory.Create(
+    builder =>
+    {
+        builder.ClearProviders();
+        builder.AddConfiguration(config.GetSection("Logging"));
 
-    builder.AddConsole();
-    builder.AddConsoleFormatter<CustomConsoleFormatter, CustomConsoleFormatterOptions>();
-});
+        builder.AddConsole();
+        builder.AddConsoleFormatter<CustomConsoleFormatter, CustomConsoleFormatterOptions>();
+    });
 ILogger logger = loggerFactory.CreateLogger("MidiRecorder");
 
-using var parser = new Parser(with =>
-{
-    with.HelpWriter = null;
-});
+using var parser = new Parser(with => { with.HelpWriter = null; });
 
 var parserResult = parser.ParseArguments<RecordOptions, ListMidiInputsOptions>(args);
 
-return parserResult
-    .MapResult<RecordOptions, ListMidiInputsOptions, int>(
-        Record,
-        ListMidiInputs,
-        errors => DisplayHelp(parserResult, errors));
+return parserResult.MapResult<RecordOptions, ListMidiInputsOptions, int>(
+    Record,
+    ListMidiInputs,
+    errors => DisplayHelp(parserResult, errors));
 
 int ListMidiInputs(ListMidiInputsOptions options)
 {
     var midiInputService = new MidiInputService(loggerFactory.CreateLogger<MidiInputService>());
     var midiInCapabilities = midiInputService.GetMidiInputs().ToArray();
 
-    if (!midiInCapabilities.Any())
-    {
-        logger.LogError("No MIDI inputs");
-    }
+    if (!midiInCapabilities.Any()) logger.LogError("No MIDI inputs");
 
-    foreach (var x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
-    {
+    foreach ((MidiInput midiInput, int idx) x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
         Console.WriteLine($"{x.idx}. {x.midiInput.Name}");
-    }
 
     return 0;
 }
@@ -73,14 +63,14 @@ int Record(RecordOptions options)
     var saver = new NAudioMidiFileSaver();
     var analyzer = new NAudioMidiEventAnalyzer();
     var splitter = new MidiSplitter<MidiEvent>();
-    var svc = new MidiRecorderApplicationService<NAudio.Midi.MidiEvent>(
+    var svc = new MidiRecorderApplicationService<MidiEvent>(
         feeder,
-        loggerFactory.CreateLogger<MidiRecorderApplicationService<NAudio.Midi.MidiEvent>>(),
+        loggerFactory.CreateLogger<MidiRecorderApplicationService<MidiEvent>>(),
         saver,
         analyzer,
         splitter);
 
-    using var _ = svc.StartRecording(typedOptions);
+    using IDisposable _ = svc.StartRecording(typedOptions);
     logger.LogInformation("Recording started, Press any key to quit");
     Console.ReadLine();
     return 0;
@@ -96,30 +86,31 @@ static int DisplayHelp<T>(ParserResult<T> result, IEnumerable<Error> errors)
         Console.WriteLine(helpText);
         return 0;
     }
+
     if (errs.IsHelp())
     {
-        Console.WriteLine(GetHelpText(verbs: true));
+        Console.WriteLine(GetHelpText(true));
         return 0;
     }
 
-    Console.WriteLine(GetHelpText(verbs: false));
+    Console.WriteLine(GetHelpText(false));
     return 1;
 
     string GetHelpText(bool verbs)
     {
-        return HelpText.AutoBuild(result, h =>
+        return HelpText.AutoBuild(
+            result,
+            h =>
             {
                 h.AdditionalNewLineAfterOption = false;
-                string? assemblyDescription = Assembly.GetExecutingAssembly()
+                var assemblyDescription = Assembly.GetExecutingAssembly()
                     .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)
-                    .OfType<AssemblyDescriptionAttribute>()
-                    .FirstOrDefault()
-                    ?.Description;
+                    .OfType<AssemblyDescriptionAttribute>().FirstOrDefault()?.Description;
                 if (errs.IsHelp())
                     h.AddPreOptionsLine(assemblyDescription);
                 return HelpText.DefaultParsingErrorsHandler(result, h);
             },
             e => e,
-            verbsIndex: verbs);
+            verbs);
     }
 }

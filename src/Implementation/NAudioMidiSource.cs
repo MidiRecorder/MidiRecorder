@@ -9,18 +9,15 @@ public class NAudioMidiSource : IMidiSource<MidiEvent>
 
     public NAudioMidiSource(TypedRecordOptions typedOptions)
     {
-        var q = typedOptions.MidiInputs
-            .Select(inputId =>
+        var q = typedOptions.MidiInputs.Select(
+            inputId =>
             {
                 var midiIn = new MidiIn(inputId);
-                var observable = Observable
-                    .FromEventPattern<MidiInMessageEventArgs>(
-                        a => midiIn.MessageReceived += a,
-                        a => midiIn.MessageReceived -= a)
-                    .Select(x => x.EventArgs.MidiEvent);
+                var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
+                    a => midiIn.MessageReceived += a,
+                    a => midiIn.MessageReceived -= a).Select(x => x.EventArgs.MidiEvent);
                 return (midiIn, observable);
-            })
-            .ToArray();
+            }).ToArray();
 
         _midiIns = q.Select(x => x.midiIn).ToArray();
         AllEvents = q.Select(x => x.observable).Merge();
@@ -28,17 +25,14 @@ public class NAudioMidiSource : IMidiSource<MidiEvent>
 
     public void StartReceiving()
     {
-        foreach (var midiIn in _midiIns)
-        {
-            midiIn.Start();
-        }
+        foreach (MidiIn midiIn in _midiIns) midiIn.Start();
     }
 
     public IObservable<MidiEvent> AllEvents { get; }
 
     public void Dispose()
     {
-        foreach (var midiIn in _midiIns)
+        foreach (MidiIn midiIn in _midiIns)
         {
             midiIn.Stop();
             midiIn.Dispose();

@@ -1,15 +1,14 @@
-using System.Collections.Immutable;
-
 namespace MidiRecorder.Application;
 
 public class MidiFileContext<TMidiEvent>
 {
+    private readonly IMidiEventAnalyzer<TMidiEvent> _analyzer;
     private readonly IEnumerable<TMidiEvent> _eventList;
     private readonly DateTime _now;
     private readonly Guid _uniqueIdentifier;
-    private readonly IMidiEventAnalyzer<TMidiEvent> _analyzer;
 
-    public MidiFileContext(IEnumerable<TMidiEvent> eventList, DateTime now, Guid uniqueIdentifier, IMidiEventAnalyzer<TMidiEvent> analyzer)
+    public MidiFileContext(IEnumerable<TMidiEvent> eventList, DateTime now, Guid uniqueIdentifier,
+        IMidiEventAnalyzer<TMidiEvent> analyzer)
     {
         _eventList = eventList;
         _now = now;
@@ -19,6 +18,8 @@ public class MidiFileContext<TMidiEvent>
 
     internal string BuildFilePath(string formatString)
     {
-        return StringExt.Format(formatString, new FormatData<TMidiEvent>(_now, _eventList, _uniqueIdentifier, _analyzer));
+        return StringExt.Format(
+            formatString,
+            new FormatData<TMidiEvent>(_now, _eventList, _uniqueIdentifier, _analyzer));
     }
 }

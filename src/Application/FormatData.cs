@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace MidiRecorder.Application;
 
 internal class FormatData<TMidiEvent>
@@ -8,22 +6,8 @@ internal class FormatData<TMidiEvent>
     private readonly IEnumerable<TMidiEvent> _eventList;
     private readonly Dictionary<string, object?> _memoStore = new();
 
-    private T? Memoize<T>(string key, Func<T> expression)
-    {
-        if (!_memoStore.ContainsKey(key))
-        {
-            _memoStore.Add(key, expression());
-        }
-
-        return (T?)_memoStore[key];
-    }
-
-    public DateTime Now { get; }
-    public int NumberOfEvents => _eventList.Count();
-    public int NumberOfNoteEvents => Memoize(nameof(NumberOfNoteEvents), () => _eventList.Count(_analyzer.IsNote));
-    public Guid Guid { get; }
-
-    public FormatData(DateTime now, IEnumerable<TMidiEvent> eventList, Guid guid, IMidiEventAnalyzer<TMidiEvent> analyzer)
+    public FormatData(DateTime now, IEnumerable<TMidiEvent> eventList, Guid guid,
+        IMidiEventAnalyzer<TMidiEvent> analyzer)
     {
         _eventList = eventList;
         Now = now;
@@ -31,11 +15,21 @@ internal class FormatData<TMidiEvent>
         _analyzer = analyzer;
     }
 
+    public DateTime Now { get; }
+    public int NumberOfEvents => _eventList.Count();
+    public int NumberOfNoteEvents => Memoize(nameof(NumberOfNoteEvents), () => _eventList.Count(_analyzer.IsNote));
+    public Guid Guid { get; }
+
+    private T? Memoize<T>(string key, Func<T> expression)
+    {
+        if (!_memoStore.ContainsKey(key)) _memoStore.Add(key, expression());
+
+        return (T?)_memoStore[key];
+    }
+
     public override bool Equals(object? obj)
     {
-        return obj is FormatData<TMidiEvent> other &&
-               Now == other.Now &&
-               NumberOfEvents == other.NumberOfEvents &&
+        return obj is FormatData<TMidiEvent> other && Now == other.Now && NumberOfEvents == other.NumberOfEvents &&
                Guid.Equals(other.Guid);
     }
 

@@ -1,26 +1,26 @@
 {
-    "files.associations": {
-        ".globalconfig": "ini"
-    },
-    "workbench.colorCustomizations": {
-        "activityBar.activeBackground": "#daa14a",
-        "activityBar.activeBorder": "#1b845b",
-        "activityBar.background": "#daa14a",
-        "activityBar.foreground": "#15202b",
-        "activityBar.inactiveForeground": "#15202b99",
-        "activityBarBadge.background": "#1b845b",
-        "activityBarBadge.foreground": "#e7e7e7",
-        "statusBar.background": "#c88929",
-        "statusBar.foreground": "#15202b",
-        "statusBarItem.hoverBackground": "#9e6c20",
-        "titleBar.activeBackground": "#c88929",
-        "titleBar.activeForeground": "#15202b",
-        "titleBar.inactiveBackground": "#c8892999",
-        "titleBar.inactiveForeground": "#15202b99"
-    },
-    "peacock.color": "#c88929",
-    "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)",
-    "dotnet-test-explorer.autoWatch": true,
-    "dotnet-test-explorer.treeMode": "full",
-    "dotnet-test-explorer.autoExpandTree": true
+  "files.associations": {
+    ".globalconfig": "ini"
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#daa14a",
+    "activityBar.activeBorder": "#1b845b",
+    "activityBar.background": "#daa14a",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#1b845b",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "statusBar.background": "#c88929",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#9e6c20",
+    "titleBar.activeBackground": "#c88929",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#c8892999",
+    "titleBar.inactiveForeground": "#15202b99"
+  },
+  "peacock.color": "#c88929",
+  "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)",
+  "dotnet-test-explorer.autoWatch": true,
+  "dotnet-test-explorer.treeMode": "full",
+  "dotnet-test-explorer.autoExpandTree": true
 }

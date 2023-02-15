@@ -13,17 +13,16 @@ internal class OptionsValidator : IOptionsValidator
 
     public (TypedRecordOptions? typedRecordOptions, string errorMessage) Validate(RecordOptions options)
     {
-        int[] inputIds = options.MidiInputs.SelectMany(_service.GetMidiInputId).Distinct().ToArray();
+        var inputIds = options.MidiInputs.SelectMany(_service.GetMidiInputId).Distinct().ToArray();
         if (inputIds.Length == 0)
-        {
             return (null, $"No MIDI inputs for '{string.Join(", ", options.MidiInputs)}' could be located");
-        }
-        
-        return (new TypedRecordOptions(
-            TimeSpan.FromMilliseconds(options.DelayToSave),
-            TimeSpan.FromMilliseconds(30000),
-            options.PathFormatString,
-            options.MidiResolution,
-            inputIds), "OK");
+
+        return (
+            new TypedRecordOptions(
+                TimeSpan.FromMilliseconds(options.DelayToSave),
+                TimeSpan.FromMilliseconds(30000),
+                options.PathFormatString,
+                options.MidiResolution,
+                inputIds), "OK");
     }
 }
