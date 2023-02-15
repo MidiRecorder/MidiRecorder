@@ -7,7 +7,10 @@ public class NAudioMidiFileSaver : IMidiFileSaver<MidiEventWithPort>
     public void Save(IEnumerable<IEnumerable<MidiEventWithPort>> tracks, string filePath, int timeDivision)
     {
         var directory = Path.GetDirectoryName(filePath);
-        if (directory != null && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
 
         var midiEventCollection = new MidiEventCollection(1, timeDivision);
         foreach (var track in tracks)
