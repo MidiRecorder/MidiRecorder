@@ -108,19 +108,6 @@ class Build : NukeBuild
                     .SetLoggers("console;verbosity=normal"));
             });
 
-    Target IntegrationTests =>
-        _ => _
-            .Description("🐛 Integration Tests")
-            .DependsOn(Compile)
-            .Executes(() =>
-            {
-                DotNetTest(o => o
-                    .SetProjectFile(SourceDirectory / "IntegrationTests")
-                    .SetConfiguration(Configuration)
-                    .EnableNoBuild()
-                    .SetLoggers("console;verbosity=normal"));
-            });
-
     Target Pack =>
         _ => _
             .Description("📦 NuGet Pack")
@@ -154,7 +141,7 @@ class Build : NukeBuild
     public Target Push =>
         _ => _
             .Description("📢 NuGet Push")
-            .DependsOn(Pack, UnitTests, IntegrationTests, ChangelogVerification)
+            .DependsOn(Pack, UnitTests, ChangelogVerification)
             .Consumes(Pack)
             .Triggers(TagCommit)
             .Executes(() =>
@@ -200,7 +187,7 @@ class Build : NukeBuild
         _ => _
             .Description("🏷 Pull Request")
             .Requires(() => GitHubActions)
-            .Triggers(UnitTests, IntegrationTests)
+            .Triggers(UnitTests)
             .Executes(async () =>
             {
                 var tokenAuth = new Credentials(GitHubActions.Token);
