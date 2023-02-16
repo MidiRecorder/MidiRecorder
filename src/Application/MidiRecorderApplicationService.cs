@@ -12,11 +12,11 @@ public class MidiRecorderApplicationService<TMidiEvent>
     private readonly IMidiSourceBuilder<TMidiEvent> _sourceBuilder;
     private readonly IMidiSplitter<TMidiEvent> _splitter;
     private readonly IMidiTrackBuilder<TMidiEvent> _trackBuilder;
-
+    private readonly IFormatTester _formatTester;
     public MidiRecorderApplicationService(IMidiSourceBuilder<TMidiEvent> sourceBuilder,
         ILogger<MidiRecorderApplicationService<TMidiEvent>> logger, IMidiFileSaver<TMidiEvent> fileSaver,
         IMidiEventAnalyzer<TMidiEvent> analyzer, IMidiSplitter<TMidiEvent> splitter,
-        IMidiTrackBuilder<TMidiEvent> trackBuilder)
+        IMidiTrackBuilder<TMidiEvent> trackBuilder, IFormatTester formatTester)
     {
         _sourceBuilder = sourceBuilder;
         _logger = logger;
@@ -24,15 +24,21 @@ public class MidiRecorderApplicationService<TMidiEvent>
         _analyzer = analyzer;
         _splitter = splitter;
         _trackBuilder = trackBuilder;
+        _formatTester = formatTester;
     }
 
-    public IDisposable StartRecording(TypedRecordOptions options)
+    public IDisposable? StartRecording(TypedRecordOptions options)
     {
         PrintOptions(options);
 
+        (TimeSpan delayToSave, TimeSpan timeoutToSave, var pathFormatString, var midiResolution, _) = options;
+        if (!_formatTester.TestFormat(pathFormatString))
+        {
+            return null;
+        }
+        
         var source = _sourceBuilder.Build(options);
 
-        (TimeSpan delayToSave, TimeSpan timeoutToSave, var pathFormatString, var midiResolution, _) = options;
 
         var allEvents = source.AllEvents;
         var split = _splitter.Split(allEvents, _analyzer.NoteAndSustainPedalCount, timeoutToSave, delayToSave);

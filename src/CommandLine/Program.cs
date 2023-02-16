@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using CommandLine;
 using CommandLine.Text;
 using Microsoft.Extensions.Configuration;
@@ -27,10 +28,20 @@ using var parser = new Parser(with => { with.HelpWriter = null; });
 
 var parserResult = parser.ParseArguments<RecordOptions, ListMidiInputsOptions>(args);
 
-return parserResult.MapResult<RecordOptions, ListMidiInputsOptions, int>(
-    Record,
-    ListMidiInputs,
-    errors => DisplayHelp(parserResult, errors));
+try
+{
+    return parserResult.MapResult<RecordOptions, ListMidiInputsOptions, int>(
+        Record,
+        ListMidiInputs,
+        errors => DisplayHelp(parserResult, errors));
+}
+#pragma warning disable CA1031 Topmost catch to present exception
+catch (Exception ex)
+#pragma warning restore CA1031
+{
+    logger.LogCritical(ex.Demystify(), "{Message}", ex.Message);
+    return 1;
+}
 
 int ListMidiInputs(ListMidiInputsOptions options)
 {
@@ -39,7 +50,7 @@ int ListMidiInputs(ListMidiInputsOptions options)
 
     if (!midiInCapabilities.Any())
     {
-        logger.LogError("No MIDI inputs");
+        logger.LogError("{Message}","No MIDI inputs");
     }
 
     foreach ((MidiInput midiInput, int idx) x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
@@ -58,7 +69,7 @@ int Record(RecordOptions options)
 
     if (typedOptions == null)
     {
-        Console.WriteLine(errorMessage);
+        logger.LogCritical("{Message}", errorMessage);
         DisplayHelp(parserResult, Enumerable.Empty<Error>());
         return 1;
     }
@@ -68,15 +79,24 @@ int Record(RecordOptions options)
     var analyzer = new NAudioMidiEventAnalyzer();
     var splitter = new MidiSplitter<MidiEventWithPort>();
     var trackBuilder = new NAudioMidiTrackBuilder();
+    var formatTester = new NAudioMidiFormatTester(
+        analyzer,
+        loggerFactory.CreateLogger<NAudioMidiFormatTester>());
     var svc = new MidiRecorderApplicationService<MidiEventWithPort>(
         sourceBuilder,
         loggerFactory.CreateLogger<MidiRecorderApplicationService<MidiEventWithPort>>(),
         saver,
         analyzer,
         splitter,
-        trackBuilder);
+        trackBuilder,
+        formatTester);
 
-    using IDisposable _ = svc.StartRecording(typedOptions);
+    using IDisposable? stopper = svc.StartRecording(typedOptions);
+    if (stopper == null)
+    {
+        return 1;
+    }
+
     logger.LogInformation("Recording started, Press any key to quit");
     Console.ReadLine();
     return 0;

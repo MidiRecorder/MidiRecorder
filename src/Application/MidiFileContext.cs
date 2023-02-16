@@ -16,7 +16,7 @@ public class MidiFileContext<TMidiEvent>
         _analyzer = analyzer;
     }
 
-    internal string BuildFilePath(string formatString)
+    public string BuildFilePath(string formatString)
     {
         return StringExt.Format(
             formatString,
