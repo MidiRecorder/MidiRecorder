@@ -1,4 +1,4 @@
-[![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/pull-request.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
+[![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/PullRequest.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/PullRequest.yml)
 ![Nuget](https://img.shields.io/nuget/v/midirec)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/midirec?label=nuget%20pre)
 ![Downloads](https://img.shields.io/nuget/dt/midirec)

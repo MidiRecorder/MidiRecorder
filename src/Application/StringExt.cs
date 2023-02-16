@@ -68,6 +68,7 @@ public static class StringExt
         }
 
         foreach (var character in formatString)
+        {
             switch ((state, character))
             {
                 case (ParseState.Outside, '{'):
@@ -113,6 +114,7 @@ public static class StringExt
                     stringFormatBuilder.Append(character);
                     break;
             }
+        }
 
         return (stringFormatBuilder.ToString(), itemNames);
     }

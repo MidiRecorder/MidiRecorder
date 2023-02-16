@@ -30,7 +30,10 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
 
     public void StartReceiving()
     {
-        foreach (MidiIn midiIn in _midiIns) midiIn.Start();
+        foreach (MidiIn midiIn in _midiIns)
+        {
+            midiIn.Start();
+        }
     }
 
     public IObservable<MidiEventWithPort> AllEvents { get; }

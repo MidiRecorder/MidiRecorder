@@ -33,6 +33,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 class Build : NukeBuild
 {
     const string ChangelogFileName = "CHANGELOG.md";
+    const string NoFunctionalityTag = "NO_FUNCTIONALITY";
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -138,7 +139,7 @@ class Build : NukeBuild
                     $"There is no entry for version {Version} in {ChangelogFileName}");
             });
 
-    public Target Push =>
+    Target Push =>
         _ => _
             .Description("📢 NuGet Push")
             .DependsOn(Pack, UnitTests, ChangelogVerification)
@@ -197,16 +198,26 @@ class Build : NukeBuild
                 var name = split[1];
                 if (GitHubActions.PullRequestNumber != null)
                 {
+                    PullRequest pullRequest = await github.PullRequest.Get(owner, name, GitHubActions.PullRequestNumber.Value);
+                    if (pullRequest.Body.Contains(NoFunctionalityTag))
+                    {
+                        return;
+                    }
+
                     var pullRequestFiles =
                         await github.PullRequest.Files(owner, name, GitHubActions.PullRequestNumber.Value);
                     try
                     {
-                        Assert.True(pullRequestFiles.Any(x => x.FileName == ChangelogFileName));
+                        Assert.True(
+                            pullRequestFiles.Any(x => x.FileName == ChangelogFileName),
+                            $"You didn't update {ChangelogFileName}. Update it or write '{NoFunctionalityTag}' somewhere in the PR description.");
                     }
                     catch
                     {
                         foreach (var fileName in pullRequestFiles.Select(x => x.FileName))
+                        {
                             Log.Information("PR File: {FileName}", fileName);
+                        }
 
                         throw;
                     }
