@@ -7,7 +7,6 @@ using MidiRecorder.Application;
 using MidiRecorder.Application.Implementation;
 using MidiRecorder.CommandLine;
 using MidiRecorder.CommandLine.Logging;
-using NAudio.Midi;
 
 const string environmentVarPrefix = "MidiRecorder_";
 IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, false)
@@ -38,7 +37,10 @@ int ListMidiInputs(ListMidiInputsOptions options)
     var midiInputService = new MidiInputService(loggerFactory.CreateLogger<MidiInputService>());
     var midiInCapabilities = midiInputService.GetMidiInputs().ToArray();
 
-    if (!midiInCapabilities.Any()) logger.LogError("No MIDI inputs");
+    if (!midiInCapabilities.Any())
+    {
+        logger.LogError("No MIDI inputs");
+    }
 
     foreach ((MidiInput midiInput, int idx) x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
         Console.WriteLine($"{x.idx}. {x.midiInput.Name}");
@@ -109,7 +111,10 @@ static int DisplayHelp<T>(ParserResult<T> result, IEnumerable<Error> errors)
                     .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)
                     .OfType<AssemblyDescriptionAttribute>().FirstOrDefault()?.Description;
                 if (errs.IsHelp())
+                {
                     h.AddPreOptionsLine(assemblyDescription);
+                }
+
                 return HelpText.DefaultParsingErrorsHandler(result, h);
             },
             e => e,

@@ -150,7 +150,7 @@ public class MidiSplitterTests
                     Recorded.Create(106, "-1 C5"),
                     Recorded.Create(111, " 0 event"),
                     Recorded.Create(121, " 0 event"),
-                    Recorded.Create(131, " 0 event"),
+                    Recorded.Create(131, " 0 event")
                 },
                 new[]
                 {

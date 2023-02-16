@@ -15,9 +15,8 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
                 var midiIn = new MidiIn(inputId);
                 var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
                     a => midiIn.MessageReceived += a,
-                    a => midiIn.MessageReceived -= a)
-                    .Select(x => x.EventArgs)
-                    .Select(e =>
+                    a => midiIn.MessageReceived -= a).Select(x => x.EventArgs).Select(
+                    e =>
                     {
                         e.MidiEvent.AbsoluteTime = e.Timestamp;
                         return new MidiEventWithPort(e.MidiEvent, inputId);

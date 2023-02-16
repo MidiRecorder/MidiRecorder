@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 
-## [1.1.0] - 2023-02-15
+## [1.1.0] - 2023-02-16
 
 ### Added
 - Split files after all notes and sustain pedal are released.

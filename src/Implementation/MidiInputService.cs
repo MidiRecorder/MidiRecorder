@@ -43,7 +43,10 @@ public class MidiInputService : IMidiInputService
         }
 
         int? selectedIdx = null;
-        if (int.TryParse(midiInputName, out var s)) selectedIdx = s >= 0 && s < midiInCapabilities.Length ? s : null;
+        if (int.TryParse(midiInputName, out var s))
+        {
+            selectedIdx = s >= 0 && s < midiInCapabilities.Length ? s : null;
+        }
 
         selectedIdx ??= midiInCapabilities.Select((port, idx) => new { port, idx }).FirstOrDefault(
             x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))?.idx;

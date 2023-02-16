@@ -4,6 +4,7 @@ root = true
 indent_style = space
 
 # ReSharper properties
+resharper_braces_for_ifelse = required
 resharper_wrap_array_initializer_style = chop_if_long
 # (Please don't specify an indent_size here; that has too many unintended consequences.)
 
