@@ -182,6 +182,16 @@ class Build : NukeBuild
                     owner,
                     name,
                     new NewReference($"refs/tags/v{Version}", tag.Object.Sha));
+
+                Assert.FileExists(RootDirectory / ChangelogFileName);
+                var newRelease = new NewRelease(Version)
+                {
+                    Draft = false,
+                    Prerelease = Version != MainVersion,
+                    Name = Version,
+                    Body = File.ReadAllText(RootDirectory / ChangelogFileName)
+                };
+                await github.Repository.Release.Create(owner, name, newRelease);
             });
 
     Target PullRequest =>
@@ -198,7 +208,8 @@ class Build : NukeBuild
                 var name = split[1];
                 if (GitHubActions.PullRequestNumber != null)
                 {
-                    PullRequest pullRequest = await github.PullRequest.Get(owner, name, GitHubActions.PullRequestNumber.Value);
+                    PullRequest pullRequest =
+                        await github.PullRequest.Get(owner, name, GitHubActions.PullRequestNumber.Value);
                     if (pullRequest.Body.Contains(NoFunctionalityTag))
                     {
                         return;
