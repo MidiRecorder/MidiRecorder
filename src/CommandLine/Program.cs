@@ -43,7 +43,9 @@ int ListMidiInputs(ListMidiInputsOptions options)
     }
 
     foreach ((MidiInput midiInput, int idx) x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
+    {
         Console.WriteLine($"{x.idx}. {x.midiInput.Name}");
+    }
 
     return 0;
 }

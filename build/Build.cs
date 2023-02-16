@@ -206,7 +206,9 @@ class Build : NukeBuild
                     catch
                     {
                         foreach (var fileName in pullRequestFiles.Select(x => x.FileName))
+                        {
                             Log.Information("PR File: {FileName}", fileName);
+                        }
 
                         throw;
                     }

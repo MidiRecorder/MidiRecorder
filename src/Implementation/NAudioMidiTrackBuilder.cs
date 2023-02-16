@@ -8,7 +8,10 @@ public sealed class NAudioMidiTrackBuilder : IMidiTrackBuilder<MidiEventWithPort
     {
         var events = midiEvents.ToArray();
         var firstTime = events[0].MidiEvent.AbsoluteTime;
-        foreach (MidiEventWithPort midiEvent in events) midiEvent.MidiEvent.AbsoluteTime -= firstTime;
+        foreach (MidiEventWithPort midiEvent in events)
+        {
+            midiEvent.MidiEvent.AbsoluteTime -= firstTime;
+        }
 
         return from midiEvent in events
             group midiEvent by (midiEvent.Port, midiEvent.MidiEvent.Channel)
