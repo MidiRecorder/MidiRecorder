@@ -7,7 +7,10 @@ public class MidiFileContext<TMidiEvent>
     private readonly DateTime _now;
     private readonly Guid _uniqueIdentifier;
 
-    public MidiFileContext(IEnumerable<TMidiEvent> eventList, DateTime now, Guid uniqueIdentifier,
+    public MidiFileContext(
+        IEnumerable<TMidiEvent> eventList,
+        DateTime now,
+        Guid uniqueIdentifier,
         IMidiEventAnalyzer<TMidiEvent> analyzer)
     {
         _eventList = eventList;

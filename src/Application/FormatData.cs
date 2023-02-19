@@ -6,7 +6,10 @@ internal class FormatData<TMidiEvent>
     private readonly IEnumerable<TMidiEvent> _eventList;
     private readonly Dictionary<string, object?> _memoStore = new();
 
-    public FormatData(DateTime now, IEnumerable<TMidiEvent> eventList, Guid guid,
+    public FormatData(
+        DateTime now,
+        IEnumerable<TMidiEvent> eventList,
+        Guid guid,
         IMidiEventAnalyzer<TMidiEvent> analyzer)
     {
         _eventList = eventList;

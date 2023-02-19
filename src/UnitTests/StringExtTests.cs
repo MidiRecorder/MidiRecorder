@@ -104,7 +104,8 @@ public class StringExtTests
     public void Format_HappyPath()
     {
         StringExt.Format("{Number} {Date:yyyyMM}-{Number,4:x}", new { Number = 234, Date = new DateTime(2021, 02, 14) })
-            .Should().Be("234 202102-  ea");
+            .Should()
+            .Be("234 202102-  ea");
     }
 
     public record TestRecord(int Number, DateTime Date);
@@ -120,7 +121,11 @@ public class TestLogger<T> : ILogger<T>, IDisposable
     {
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception exception,
         Func<TState, Exception, string> formatter)
     {
         _traces.Add(state.ToString());

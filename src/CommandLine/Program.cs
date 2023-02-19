@@ -11,7 +11,8 @@ using MidiRecorder.CommandLine.Logging;
 
 const string environmentVarPrefix = "MidiRecorder_";
 IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, false)
-    .AddEnvironmentVariables(environmentVarPrefix).Build();
+    .AddEnvironmentVariables(environmentVarPrefix)
+    .Build();
 
 using ILoggerFactory? loggerFactory = LoggerFactory.Create(
     builder =>
@@ -50,7 +51,7 @@ int ListMidiInputs(ListMidiInputsOptions options)
 
     if (!midiInCapabilities.Any())
     {
-        logger.LogError("{Message}","No MIDI inputs");
+        logger.LogError("{Message}", "No MIDI inputs");
     }
 
     foreach ((MidiInput midiInput, int idx) x in midiInCapabilities.Select((midiInput, idx) => (midiInput, idx)))
@@ -79,9 +80,7 @@ int Record(RecordOptions options)
     var analyzer = new NAudioMidiEventAnalyzer();
     var splitter = new MidiSplitter<MidiEventWithPort>();
     var trackBuilder = new NAudioMidiTrackBuilder();
-    var formatTester = new NAudioMidiFormatTester(
-        analyzer,
-        loggerFactory.CreateLogger<NAudioMidiFormatTester>());
+    var formatTester = new NAudioMidiFormatTester(analyzer, loggerFactory.CreateLogger<NAudioMidiFormatTester>());
     var svc = new MidiRecorderApplicationService<MidiEventWithPort>(
         sourceBuilder,
         loggerFactory.CreateLogger<MidiRecorderApplicationService<MidiEventWithPort>>(),
@@ -131,7 +130,9 @@ static int DisplayHelp<T>(ParserResult<T> result, IEnumerable<Error> errors)
                 h.AdditionalNewLineAfterOption = false;
                 var assemblyDescription = Assembly.GetExecutingAssembly()
                     .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)
-                    .OfType<AssemblyDescriptionAttribute>().FirstOrDefault()?.Description;
+                    .OfType<AssemblyDescriptionAttribute>()
+                    .FirstOrDefault()
+                    ?.Description;
                 if (errs.IsHelp())
                 {
                     h.AddPreOptionsLine(assemblyDescription);

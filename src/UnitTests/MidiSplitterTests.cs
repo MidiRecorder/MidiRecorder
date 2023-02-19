@@ -31,17 +31,18 @@ public class MidiSplitterTests
         var result = sut.SplitGroups;
 
         var result2 = PrepareResult(result, scheduler);
-        result2.Should().BeEquivalentTo(
-            new[]
-            {
+        result2.Should()
+            .BeEquivalentTo(
                 new[]
                 {
-                    Recorded.Create(101, "1 C5"),
-                    Recorded.Create(106, "-1 C5"),
-                    Recorded.Create(117, "1 C7"),
-                    Recorded.Create(121, "-1 C7")
-                }
-            });
+                    new[]
+                    {
+                        Recorded.Create(101, "1 C5"),
+                        Recorded.Create(106, "-1 C5"),
+                        Recorded.Create(117, "1 C7"),
+                        Recorded.Create(121, "-1 C7")
+                    }
+                });
     }
 
     [TestMethod]
@@ -64,12 +65,13 @@ public class MidiSplitterTests
         var result = sut.SplitGroups;
 
         var result2 = PrepareResult(result, scheduler);
-        result2.Should().BeEquivalentTo(
-            new[]
-            {
-                new[] { Recorded.Create(101, "1 C5"), Recorded.Create(106, "-1 C5") },
-                new[] { Recorded.Create(201, "1 C7"), Recorded.Create(206, "-1 C7") }
-            });
+        result2.Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    new[] { Recorded.Create(101, "1 C5"), Recorded.Create(106, "-1 C5") },
+                    new[] { Recorded.Create(201, "1 C7"), Recorded.Create(206, "-1 C7") }
+                });
     }
 
     [TestMethod]
@@ -94,22 +96,23 @@ public class MidiSplitterTests
         var result = sut.SplitGroups;
 
         var result2 = PrepareResult(result, scheduler);
-        result2.Should().BeEquivalentTo(
-            new[]
-            {
+        result2.Should()
+            .BeEquivalentTo(
                 new[]
                 {
-                    Recorded.Create(101, " 1 C5"),
-                    Recorded.Create(106, "-1 C5"),
-                    Recorded.Create(111, " 1 C6 held")
-                },
-                new[]
-                {
-                    Recorded.Create(193, "-1 C6 held"),
-                    Recorded.Create(201, " 1 C7"),
-                    Recorded.Create(206, "-1 C7")
-                }
-            });
+                    new[]
+                    {
+                        Recorded.Create(101, " 1 C5"),
+                        Recorded.Create(106, "-1 C5"),
+                        Recorded.Create(111, " 1 C6 held")
+                    },
+                    new[]
+                    {
+                        Recorded.Create(193, "-1 C6 held"),
+                        Recorded.Create(201, " 1 C7"),
+                        Recorded.Create(206, "-1 C7")
+                    }
+                });
     }
 
     [TestMethod]
@@ -140,28 +143,29 @@ public class MidiSplitterTests
         var result = sut.SplitGroups;
 
         var result2 = PrepareResult(result, scheduler);
-        result2.Should().BeEquivalentTo(
-            new[]
-            {
+        result2.Should()
+            .BeEquivalentTo(
                 new[]
                 {
-                    Recorded.Create(101, " 1 C5"),
-                    Recorded.Create(104, " 0 event"),
-                    Recorded.Create(106, "-1 C5"),
-                    Recorded.Create(111, " 0 event"),
-                    Recorded.Create(121, " 0 event"),
-                    Recorded.Create(131, " 0 event")
-                },
-                new[]
-                {
-                    Recorded.Create(141, " 0 event"),
-                    Recorded.Create(151, " 0 event"),
-                    Recorded.Create(161, " 0 event"),
-                    Recorded.Create(201, " 1 C7"),
-                    Recorded.Create(203, " 0 event"),
-                    Recorded.Create(206, "-1 C7")
-                }
-            });
+                    new[]
+                    {
+                        Recorded.Create(101, " 1 C5"),
+                        Recorded.Create(104, " 0 event"),
+                        Recorded.Create(106, "-1 C5"),
+                        Recorded.Create(111, " 0 event"),
+                        Recorded.Create(121, " 0 event"),
+                        Recorded.Create(131, " 0 event")
+                    },
+                    new[]
+                    {
+                        Recorded.Create(141, " 0 event"),
+                        Recorded.Create(151, " 0 event"),
+                        Recorded.Create(161, " 0 event"),
+                        Recorded.Create(201, " 1 C7"),
+                        Recorded.Create(203, " 0 event"),
+                        Recorded.Create(206, "-1 C7")
+                    }
+                });
     }
 
     [TestMethod]
@@ -186,26 +190,30 @@ public class MidiSplitterTests
         var result = sut.SplitGroups;
 
         var result2 = PrepareResult(result, scheduler);
-        result2.Should().BeEquivalentTo(
-            new[]
-            {
+        result2.Should()
+            .BeEquivalentTo(
                 new[]
                 {
-                    Recorded.Create(101, " 1 C5"),
-                    Recorded.Create(106, "-1 C5"),
-                    Recorded.Create(111, " 1 C6 held")
-                },
-                new[]
-                {
-                    Recorded.Create(193, "-1 C6 held"),
-                    Recorded.Create(201, " 1 C7"),
-                    Recorded.Create(206, "-1 C7")
-                }
-            });
+                    new[]
+                    {
+                        Recorded.Create(101, " 1 C5"),
+                        Recorded.Create(106, "-1 C5"),
+                        Recorded.Create(111, " 1 C6 held")
+                    },
+                    new[]
+                    {
+                        Recorded.Create(193, "-1 C6 held"),
+                        Recorded.Create(201, " 1 C7"),
+                        Recorded.Create(206, "-1 C7")
+                    }
+                });
     }
 
-    private static MidiSplit<string> CreateSplit(TestScheduler scheduler, Recorded<Notification<string>>[] events,
-        TimeSpan timeoutToSave, TimeSpan delayToSave)
+    private static MidiSplit<string> CreateSplit(
+        TestScheduler scheduler,
+        Recorded<Notification<string>>[] events,
+        TimeSpan timeoutToSave,
+        TimeSpan delayToSave)
     {
         var allEvents = scheduler.CreateColdObservable(events);
         var sut = new MidiSplitter<string>(scheduler);
@@ -216,8 +224,10 @@ public class MidiSplitterTests
     private static Recorded<string>[][] PrepareResult(IObservable<IObservable<string>> result, TestScheduler scheduler)
     {
         return result.SelectMany((observable, index) => observable.Select(x => (index, x)))
-            .WaitAndGetRecorded(scheduler).GroupBy(x => x.Value.index, x => Recorded.Create(x.Time, x.Value.x))
-            .Select(x => x.ToArray()).ToArray();
+            .WaitAndGetRecorded(scheduler)
+            .GroupBy(x => x.Value.index, x => Recorded.Create(x.Time, x.Value.x))
+            .Select(x => x.ToArray())
+            .ToArray();
     }
 
     private static int NoteAndSustainPedalCount(string s)
