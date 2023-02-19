@@ -23,7 +23,9 @@ public sealed class CustomConsoleFormatter : ConsoleFormatter, IDisposable
         _optionsReloadToken.Dispose();
     }
 
-    public override void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider,
+    public override void Write<TState>(
+        in LogEntry<TState> logEntry,
+        IExternalScopeProvider scopeProvider,
         TextWriter textWriter)
     {
         LogLevel logLevel = logEntry.LogLevel;

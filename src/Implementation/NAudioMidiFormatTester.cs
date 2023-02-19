@@ -7,7 +7,10 @@ public class NAudioMidiFormatTester : IFormatTester
 {
     private readonly IMidiEventAnalyzer<MidiEventWithPort> _analyzer;
     private readonly ILogger<NAudioMidiFormatTester> _logger;
-    public NAudioMidiFormatTester(IMidiEventAnalyzer<MidiEventWithPort> analyzer, ILogger<NAudioMidiFormatTester> logger)
+
+    public NAudioMidiFormatTester(
+        IMidiEventAnalyzer<MidiEventWithPort> analyzer,
+        ILogger<NAudioMidiFormatTester> logger)
     {
         _analyzer = analyzer;
         _logger = logger;
@@ -15,10 +18,7 @@ public class NAudioMidiFormatTester : IFormatTester
 
     public bool TestFormat(string pathFormatString)
     {
-        var eventList = new []
-        {
-            new MidiEventWithPort(new NoteOnEvent(11, 1, 78, 34, 333), 0)
-        };
+        var eventList = new[] { new MidiEventWithPort(new NoteOnEvent(11, 1, 78, 34, 333), 0) };
 
         var context = new MidiFileContext<MidiEventWithPort>(eventList, DateTime.Now, Guid.NewGuid(), _analyzer);
 
@@ -33,5 +33,4 @@ public class NAudioMidiFormatTester : IFormatTester
             return false;
         }
     }
-
 }

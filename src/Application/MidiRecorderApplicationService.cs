@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -8,15 +7,20 @@ public class MidiRecorderApplicationService<TMidiEvent>
 {
     private readonly IMidiEventAnalyzer<TMidiEvent> _analyzer;
     private readonly IMidiFileSaver<TMidiEvent> _fileSaver;
+    private readonly IFormatTester _formatTester;
     private readonly ILogger<MidiRecorderApplicationService<TMidiEvent>> _logger;
     private readonly IMidiSourceBuilder<TMidiEvent> _sourceBuilder;
     private readonly IMidiSplitter<TMidiEvent> _splitter;
     private readonly IMidiTrackBuilder<TMidiEvent> _trackBuilder;
-    private readonly IFormatTester _formatTester;
-    public MidiRecorderApplicationService(IMidiSourceBuilder<TMidiEvent> sourceBuilder,
-        ILogger<MidiRecorderApplicationService<TMidiEvent>> logger, IMidiFileSaver<TMidiEvent> fileSaver,
-        IMidiEventAnalyzer<TMidiEvent> analyzer, IMidiSplitter<TMidiEvent> splitter,
-        IMidiTrackBuilder<TMidiEvent> trackBuilder, IFormatTester formatTester)
+
+    public MidiRecorderApplicationService(
+        IMidiSourceBuilder<TMidiEvent> sourceBuilder,
+        ILogger<MidiRecorderApplicationService<TMidiEvent>> logger,
+        IMidiFileSaver<TMidiEvent> fileSaver,
+        IMidiEventAnalyzer<TMidiEvent> analyzer,
+        IMidiSplitter<TMidiEvent> splitter,
+        IMidiTrackBuilder<TMidiEvent> trackBuilder,
+        IFormatTester formatTester)
     {
         _sourceBuilder = sourceBuilder;
         _logger = logger;
@@ -36,7 +40,7 @@ public class MidiRecorderApplicationService<TMidiEvent>
         {
             return null;
         }
-        
+
         var source = _sourceBuilder.Build(options);
 
 
@@ -44,8 +48,7 @@ public class MidiRecorderApplicationService<TMidiEvent>
         var split = _splitter.Split(allEvents, _analyzer.NoteAndSustainPedalCount, timeoutToSave, delayToSave);
         _ = allEvents.ForEachAsync(e => _logger.LogTrace("{MidiEvent}", e));
         _ = split.AdjustedReleaseMarkers.ForEachAsync(_ => _logger.LogTrace("All Notes/Pedals Off!"));
-        _ = split.SplitGroups.Select(x => x.Aggregate(ImmutableList<TMidiEvent>.Empty, (l, i) => l.Add(i)))
-            .ForEachAsync(e => e.ForEachAsync(SaveMidiFile));
+        _ = split.SplitGroups.ForEachAsync(x => x.ToArray().ForEachAsync(SaveMidiFile));
 
         source.StartReceiving();
         return source;

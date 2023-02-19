@@ -21,7 +21,10 @@ internal static class TextWriterExtensions
         }
     }
 
-    public static void WriteColoredMessage(this TextWriter textWriter, string message, ConsoleColor? background,
+    public static void WriteColoredMessage(
+        this TextWriter textWriter,
+        string message,
+        ConsoleColor? background,
         ConsoleColor? foreground)
     {
         // Order: background color, foreground color, Message, reset foreground color, reset background color

@@ -48,8 +48,9 @@ public class MidiInputService : IMidiInputService
             selectedIdx = s >= 0 && s < midiInCapabilities.Length ? s : null;
         }
 
-        selectedIdx ??= midiInCapabilities.Select((port, idx) => new { port, idx }).FirstOrDefault(
-            x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))?.idx;
+        selectedIdx ??= midiInCapabilities.Select((port, idx) => new { port, idx })
+            .FirstOrDefault(x => string.Equals(x.port.Name, midiInputName, StringComparison.OrdinalIgnoreCase))
+            ?.idx;
 
         if (selectedIdx == null)
         {
@@ -61,7 +62,7 @@ public class MidiInputService : IMidiInputService
         yield return selectedIdx.Value;
     }
 
-    private MidiInput CreateMidiInput(MidiInCapabilities capabilities)
+    private static MidiInput CreateMidiInput(MidiInCapabilities capabilities)
     {
         return new MidiInput(capabilities.ProductName);
     }
