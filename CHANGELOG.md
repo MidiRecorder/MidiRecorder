@@ -10,7 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 
+## [1.1.2] - 2023-02-19
+
+### Fixed
+- Sustain Pedal On was not correctly detected.
+
 ## [1.1.1] - 2023-02-16
+
+### Added
 - Check output path format string (option `-f`) before start recording.
 
 ## [1.1.0] - 2023-02-16
