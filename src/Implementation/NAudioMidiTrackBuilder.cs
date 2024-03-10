@@ -7,6 +7,7 @@ public sealed class NAudioMidiTrackBuilder : IMidiTrackBuilder<MidiEventWithPort
     public IEnumerable<IEnumerable<MidiEventWithPort>> BuildTracks(IEnumerable<MidiEventWithPort> midiEvents)
     {
         var events = midiEvents.ToArray();
+        if (events.Length == 0) return Enumerable.Empty<IEnumerable<MidiEventWithPort>>();
         var firstTime = events[0].MidiEvent.AbsoluteTime;
         foreach (MidiEventWithPort midiEvent in events)
         {
