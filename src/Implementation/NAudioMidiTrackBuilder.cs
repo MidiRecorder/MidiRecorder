@@ -7,7 +7,11 @@ public static class NAudioMidiTrackBuilder
     public static IEnumerable<IEnumerable<MidiEventWithPort>> BuildTracks(IEnumerable<MidiEventWithPort> midiEvents)
     {
         var events = midiEvents.ToArray();
-        // TODO: Failing test for empty midiEvents
+        if (events.Length == 0)
+        {
+            return Enumerable.Empty<IEnumerable<MidiEventWithPort>>();
+        }
+
         var firstTime = events[0].MidiEvent.AbsoluteTime;
         foreach (MidiEventWithPort midiEvent in events)
         {

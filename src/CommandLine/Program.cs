@@ -97,33 +97,36 @@ int Record(RecordOptions options) =>
                     typedOptions.DelayToSave);
 
                 _ = split.AdjustedReleaseMarkers.ForEachAsync(_ => logger.LogTrace("All Notes/Pedals Off!"));
-                _ = split.SplitGroups.SelectMany(x => x.ToArray().Select(midiEvents =>
-                {
-                    var filePath = MidiFileContext.BuildFilePath(
-                        typedOptions.PathFormatString,
-                        midiEvents,
-                        DateTime.Now,
-                        Guid.NewGuid(),
-                        NAudioMidiEventAnalyzer.IsNote);
-                    var tracks = NAudioMidiTrackBuilder.BuildTracks(midiEvents);
-                    return (tracks, filePath);
-                })).ForEachAsync(x =>
-                {
-                    logger.LogInformation(
-                        "Saving {EventCount} events (plus 1 EndOfTrack) to file {FilePath}...",
-                        x.tracks.Sum(y => y.Count()) - 1,
-                        x.filePath);
-                    try
+                _ = split.SplitGroups
+                    .SelectMany(x => x.ToArray()
+                        .Select(midiEvents =>
+                        {
+                            var filePath = MidiFileContext.BuildFilePath(
+                                typedOptions.PathFormatString,
+                                midiEvents,
+                                DateTime.Now,
+                                Guid.NewGuid(),
+                                NAudioMidiEventAnalyzer.IsNote);
+                            var tracks = NAudioMidiTrackBuilder.BuildTracks(midiEvents);
+                            return (tracks, filePath);
+                        }))
+                    .ForEachAsync(x =>
                     {
-                        NAudioMidiFileSaver.Save(x.tracks, x.filePath, typedOptions.MidiResolution);
-                    }
+                        logger.LogInformation(
+                            "Saving {EventCount} events (plus 1 EndOfTrack) to file {FilePath}...",
+                            x.tracks.Sum(y => y.Count()) - 1,
+                            x.filePath);
+                        try
+                        {
+                            NAudioMidiFileSaver.Save(x.tracks, x.filePath, typedOptions.MidiResolution);
+                        }
 #pragma warning disable CA1031
-                    catch (Exception ex)
+                        catch (Exception ex)
 #pragma warning restore CA1031
-                    {
-                        logger.LogError(ex, "There was an error when saving the file");
-                    }
-                });
+                        {
+                            logger.LogError(ex, "There was an error when saving the file");
+                        }
+                    });
 
                 
                 source.StartReceiving();
