@@ -12,12 +12,12 @@ public class RecordedSplit<T>
 {
     public RecordedSplit(MidiSplit<T> sut, TestScheduler scheduler)
     {
-        var groups = new List<(long, List<Recorded<T>>)>();
+        var splitGroups = new List<(long, List<Recorded<T>>)>();
         sut.SplitGroups.Timestamp(scheduler).Subscribe(
             o =>
             {
                 var groupList = new List<Recorded<T>>();
-                groups.Add((o.Timestamp.Ticks, groupList));
+                splitGroups.Add((o.Timestamp.Ticks, groupList));
                 o.Value.Timestamp(scheduler).Select(it => Recorded.Create(it.Timestamp.Ticks, it.Value)).Subscribe(groupList.Add);
             });
         var savingPoints = new List<Recorded<Unit>>();
@@ -26,11 +26,12 @@ public class RecordedSplit<T>
             .Subscribe(savingPoints.Add);
         
         scheduler.Start();
-        SplitGroups = groups.OrderBy(x => x.Item1).Select(g => g.Item2.ToArray()).ToArray();
+
+        SplitGroups = splitGroups.OrderBy(x => x.Item1).Select(g => g.Item2.Select(o => Recorded.Create(o.Time, o.Value?.ToString() ?? "")).ToArray()).ToArray();
         SavingPoints = savingPoints.ToArray();
     }
 
     public Recorded<Unit>[] SavingPoints { get; }
 
-    public Recorded<T>[][] SplitGroups { get; }
+    public Recorded<string>[][] SplitGroups { get; }
 }

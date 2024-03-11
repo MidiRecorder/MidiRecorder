@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 
+## [1.2.0] - 2024-03-11
+
+### Added
+- Show note duration in seconds with 1/100ths on the Note Off.
+
+### Fixed
+- Issue #17: problem with empty saves.
+- Issue #17: wrong detection of note on and note off.
+- `NumberOfNoteEvents` was not correctly calculated.
+- Removed weird negative lengths on NoteOn (now it shows 0).
+
 ## [1.1.2] - 2023-02-19
 
 ### Fixed

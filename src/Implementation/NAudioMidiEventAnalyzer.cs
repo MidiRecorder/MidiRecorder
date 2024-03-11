@@ -8,8 +8,8 @@ public static class NAudioMidiEventAnalyzer
     {
         return midiEvent.MidiEvent switch
         {
-            NoteEvent { Velocity: > 0 } => 1,
-            NoteEvent { Velocity: 0 } => -1,
+            NoteEvent { CommandCode: MidiCommandCode.NoteOn } => 1,
+            NoteEvent { CommandCode: MidiCommandCode.NoteOff } => -1,
             ControlChangeEvent { Controller: MidiController.Sustain, ControllerValue: 127 } => 1,
             ControlChangeEvent { Controller: MidiController.Sustain, ControllerValue: 0 } => -1,
             _ => 0
@@ -18,7 +18,6 @@ public static class NAudioMidiEventAnalyzer
 
     public static bool IsNote(MidiEventWithPort midiEvent)
     {
-        // TODO: Failing test for this error
-        return midiEvent is NoteEvent;
+        return midiEvent.MidiEvent is NoteEvent;
     }
 }

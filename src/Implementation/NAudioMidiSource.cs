@@ -22,6 +22,11 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
                             {
                                 MidiEvent? eventClone = e.MidiEvent.Clone();
                                 eventClone.AbsoluteTime = e.Timestamp;
+                                if (eventClone is NoteOnEvent non)
+                                {
+                                    non.NoteLength = 0;
+                                }
+
                                 return new MidiEventWithPort(eventClone, input.id);
                             });
                     return (midiIn, observable);

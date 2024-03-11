@@ -13,5 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="System.Reactive" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="MidiRecorder.Tests" />
+  </ItemGroup>
 </Project>

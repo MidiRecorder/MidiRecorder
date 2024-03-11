@@ -82,11 +82,11 @@ int Record(RecordOptions options) =>
                     {
                         if (x.duration == TimeSpan.Zero)
                         {
-                            logger.LogTrace("{MidiEvent}", x.ev.MidiEvent);
+                            logger.LogTrace("{MidiEvent}", x.ev);
                         }
                         else
                         {
-                            logger.LogTrace(@"{MidiEvent} {Duration:s\.ff}", x.ev.MidiEvent, x.duration);
+                            logger.LogTrace(@"{MidiEvent} Dur: {Duration:s\.ff}s", x.ev, x.duration);
                         }
                     });
                 
@@ -98,18 +98,21 @@ int Record(RecordOptions options) =>
 
                 _ = split.AdjustedReleaseMarkers.ForEachAsync(_ => logger.LogTrace("All Notes/Pedals Off!"));
                 _ = split.SplitGroups
-                    .SelectMany(x => x.ToArray()
-                        .Select(midiEvents =>
-                        {
-                            var filePath = MidiFileContext.BuildFilePath(
-                                typedOptions.PathFormatString,
-                                midiEvents,
-                                DateTime.Now,
-                                Guid.NewGuid(),
-                                NAudioMidiEventAnalyzer.IsNote);
-                            var tracks = NAudioMidiTrackBuilder.BuildTracks(midiEvents);
-                            return (tracks, filePath);
-                        }))
+                    .SelectMany(x =>x
+                        .ToArray()
+                        .Where(midiEvents => midiEvents.Length > 0)
+                        .Select(
+                            midiEvents =>
+                            {
+                                var filePath = MidiFileContext.BuildFilePath(
+                                    typedOptions.PathFormatString,
+                                    midiEvents,
+                                    DateTime.Now,
+                                    Guid.NewGuid(),
+                                    NAudioMidiEventAnalyzer.IsNote);
+                                var tracks = NAudioMidiTrackBuilder.BuildTracks(midiEvents);
+                                return (tracks, filePath);
+                            }))
                     .ForEachAsync(x =>
                     {
                         logger.LogInformation(
