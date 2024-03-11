@@ -2,25 +2,25 @@ namespace MidiRecorder.Application;
 
 internal class FormatData<TMidiEvent>
 {
-    private readonly IMidiEventAnalyzer<TMidiEvent> _analyzer;
     private readonly IEnumerable<TMidiEvent> _eventList;
+    private readonly Func<TMidiEvent, bool> _isNote;
     private readonly Dictionary<string, object?> _memoStore = new();
 
     public FormatData(
         DateTime now,
         IEnumerable<TMidiEvent> eventList,
         Guid guid,
-        IMidiEventAnalyzer<TMidiEvent> analyzer)
+        Func<TMidiEvent, bool> isNote)
     {
         _eventList = eventList;
+        _isNote = isNote;
         Now = now;
         Guid = guid;
-        _analyzer = analyzer;
     }
 
     public DateTime Now { get; }
     public int NumberOfEvents => _eventList.Count();
-    public int NumberOfNoteEvents => Memoize(nameof(NumberOfNoteEvents), () => _eventList.Count(_analyzer.IsNote));
+    public int NumberOfNoteEvents => Memoize(nameof(NumberOfNoteEvents), () => _eventList.Count(_isNote));
     public Guid Guid { get; }
 
     private T? Memoize<T>(string key, Func<T> expression)

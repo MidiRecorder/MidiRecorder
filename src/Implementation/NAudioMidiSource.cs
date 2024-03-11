@@ -10,9 +10,9 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
     public NAudioMidiSource(TypedRecordOptions typedOptions)
     {
         var q = typedOptions.MidiInputs.Select(
-                inputId =>
+                input =>
                 {
-                    var midiIn = new MidiIn(inputId);
+                    var midiIn = new MidiIn(input.id);
                     var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
                             a => midiIn.MessageReceived += a,
                             a => midiIn.MessageReceived -= a)
@@ -20,9 +20,9 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
                         .Select(
                             e =>
                             {
-                                var eventClone = e.MidiEvent.Clone();
+                                MidiEvent? eventClone = e.MidiEvent.Clone();
                                 eventClone.AbsoluteTime = e.Timestamp;
-                                return new MidiEventWithPort(eventClone, inputId);
+                                return new MidiEventWithPort(eventClone, input.id);
                             });
                     return (midiIn, observable);
                 })

@@ -1,28 +1,14 @@
 namespace MidiRecorder.Application;
 
-public class MidiFileContext<TMidiEvent>
+public static class MidiFileContext
 {
-    private readonly IMidiEventAnalyzer<TMidiEvent> _analyzer;
-    private readonly IEnumerable<TMidiEvent> _eventList;
-    private readonly DateTime _now;
-    private readonly Guid _uniqueIdentifier;
-
-    public MidiFileContext(
+    public static string BuildFilePath<TMidiEvent>(
+        string formatString,
         IEnumerable<TMidiEvent> eventList,
         DateTime now,
         Guid uniqueIdentifier,
-        IMidiEventAnalyzer<TMidiEvent> analyzer)
-    {
-        _eventList = eventList;
-        _now = now;
-        _uniqueIdentifier = uniqueIdentifier;
-        _analyzer = analyzer;
-    }
-
-    public string BuildFilePath(string formatString)
-    {
-        return StringExt.Format(
+        Func<TMidiEvent, bool> isNote) =>
+        StringExt.Format(
             formatString,
-            new FormatData<TMidiEvent>(_now, _eventList, _uniqueIdentifier, _analyzer));
-    }
+            new FormatData<TMidiEvent>(now, eventList, uniqueIdentifier, isNote));
 }

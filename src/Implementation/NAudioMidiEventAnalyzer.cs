@@ -2,9 +2,9 @@ using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public class NAudioMidiEventAnalyzer : IMidiEventAnalyzer<MidiEventWithPort>
+public static class NAudioMidiEventAnalyzer
 {
-    public int NoteAndSustainPedalCount(MidiEventWithPort midiEvent)
+    public static int NoteAndSustainPedalCount(MidiEventWithPort midiEvent)
     {
         return midiEvent.MidiEvent switch
         {
@@ -16,8 +16,9 @@ public class NAudioMidiEventAnalyzer : IMidiEventAnalyzer<MidiEventWithPort>
         };
     }
 
-    public bool IsNote(MidiEventWithPort midiEvent)
+    public static bool IsNote(MidiEventWithPort midiEvent)
     {
+        // TODO: Failing test for this error
         return midiEvent is NoteEvent;
     }
 }
