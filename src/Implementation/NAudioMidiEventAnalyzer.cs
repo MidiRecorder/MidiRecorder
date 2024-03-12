@@ -2,22 +2,22 @@ using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public class NAudioMidiEventAnalyzer : IMidiEventAnalyzer<MidiEventWithPort>
+public static class NAudioMidiEventAnalyzer
 {
-    public int NoteAndSustainPedalCount(MidiEventWithPort midiEvent)
+    public static int NoteAndSustainPedalCount(MidiEventWithPort midiEvent)
     {
         return midiEvent.MidiEvent switch
         {
-            NoteEvent { Velocity: > 0 } => 1,
-            NoteEvent { Velocity: 0 } => -1,
+            NoteEvent { CommandCode: MidiCommandCode.NoteOn } => 1,
+            NoteEvent { CommandCode: MidiCommandCode.NoteOff } => -1,
             ControlChangeEvent { Controller: MidiController.Sustain, ControllerValue: 127 } => 1,
             ControlChangeEvent { Controller: MidiController.Sustain, ControllerValue: 0 } => -1,
             _ => 0
         };
     }
 
-    public bool IsNote(MidiEventWithPort midiEvent)
+    public static bool IsNote(MidiEventWithPort midiEvent)
     {
-        return midiEvent is NoteEvent;
+        return midiEvent.MidiEvent is NoteEvent;
     }
 }

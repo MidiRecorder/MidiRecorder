@@ -23,7 +23,7 @@ public class RecordOptions
     [Option(
         'd',
         "delay",
-        HelpText = "Delay (in milliseconds) before saving the latest recorded MIDI events",
+        HelpText = "Delay (in milliseconds) in silence before saving the latest recorded MIDI events",
         Default = 5000)]
     public long DelayToSave { get; }
 

@@ -2,12 +2,16 @@ using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public sealed class NAudioMidiTrackBuilder : IMidiTrackBuilder<MidiEventWithPort>
+public static class NAudioMidiTrackBuilder
 {
-    public IEnumerable<IEnumerable<MidiEventWithPort>> BuildTracks(IEnumerable<MidiEventWithPort> midiEvents)
+    public static IEnumerable<IEnumerable<MidiEventWithPort>> BuildTracks(IEnumerable<MidiEventWithPort> midiEvents)
     {
         var events = midiEvents.ToArray();
-        if (events.Length == 0) return Enumerable.Empty<IEnumerable<MidiEventWithPort>>();
+        if (events.Length == 0)
+        {
+            return Enumerable.Empty<IEnumerable<MidiEventWithPort>>();
+        }
+
         var firstTime = events[0].MidiEvent.AbsoluteTime;
         foreach (MidiEventWithPort midiEvent in events)
         {
