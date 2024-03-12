@@ -11,7 +11,6 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [ShutdownDotNetAfterServerBuild]
@@ -69,7 +68,7 @@ class Build : NukeBuild
             .Executes(() =>
             {
                 SourceDirectory.GlobDirectories("**/bin", "**/obj")
-                    .ForEach(DeleteDirectory);
+                    .ForEach(x => x.DeleteDirectory());
             });
 
     Target Restore =>
@@ -120,7 +119,7 @@ class Build : NukeBuild
             .Produces(PackageDirectory / "*.nupkg")
             .Executes(() =>
             {
-                EnsureCleanDirectory(PackageDirectory);
+                PackageDirectory.CreateOrCleanDirectory();
                 DotNetPack(s => s
                     .SetProject(TargetProjectDirectory)
                     .SetConfiguration(Configuration)
