@@ -8,7 +8,7 @@ namespace MidiRecorder.CommandLine.Logging;
 
 public sealed class CustomConsoleFormatter : ConsoleFormatter, IDisposable
 {
-    private readonly IDisposable _optionsReloadToken;
+    private readonly IDisposable? _optionsReloadToken;
     private CustomConsoleFormatterOptions _formatterOptions;
 
     public CustomConsoleFormatter(IOptionsMonitor<CustomConsoleFormatterOptions> options) : base(
@@ -20,12 +20,12 @@ public sealed class CustomConsoleFormatter : ConsoleFormatter, IDisposable
 
     public void Dispose()
     {
-        _optionsReloadToken.Dispose();
+        _optionsReloadToken?.Dispose();
     }
 
     public override void Write<TState>(
         in LogEntry<TState> logEntry,
-        IExternalScopeProvider scopeProvider,
+        IExternalScopeProvider? scopeProvider,
         TextWriter textWriter)
     {
         LogLevel logLevel = logEntry.LogLevel;

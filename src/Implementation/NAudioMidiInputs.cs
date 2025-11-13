@@ -1,33 +1,24 @@
-using Microsoft.Extensions.Logging;
 using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public class MidiInputService : IMidiInputService
+internal static class NAudioMidiInputs
 {
-    private readonly ILogger<MidiInputService> _logger;
-
-    public MidiInputService(ILogger<MidiInputService> logger)
-    {
-        _logger = logger;
-    }
-
-    public IEnumerable<MidiInput> GetMidiInputs()
+    public static IEnumerable<MidiInput> GetMidiInputs()
     {
         for (var device = 0; device < MidiIn.NumberOfDevices; device++)
         {
             MidiInCapabilities midiInCapabilities = MidiIn.DeviceInfo(device);
-            yield return CreateMidiInput(midiInCapabilities);
+            yield return CreateMidiInput(device, midiInCapabilities);
         }
     }
 
-    public IEnumerable<int> GetMidiInputId(string midiInputName)
+    public static IEnumerable<MidiInput> SearchMidiInputId(string midiInputName)
     {
         var midiInCapabilities = GetMidiInputs().ToArray();
 
         if (midiInCapabilities.Length == 0)
         {
-            _logger.LogWarning("You have no MIDI inputs");
             yield break;
         }
 
@@ -35,8 +26,7 @@ public class MidiInputService : IMidiInputService
         {
             foreach (var i in Enumerable.Range(0, midiInCapabilities.Length))
             {
-                _logger.LogInformation("MIDI Input: {Name}", midiInCapabilities[i].Name);
-                yield return i;
+                yield return new MidiInput(i, midiInCapabilities[i].Name);
             }
 
             yield break;
@@ -54,16 +44,14 @@ public class MidiInputService : IMidiInputService
 
         if (selectedIdx == null)
         {
-            _logger.LogWarning("MIDI input not found");
             yield break;
         }
 
-        _logger.LogInformation("MIDI Input: {Name}", midiInCapabilities[selectedIdx.Value].Name);
-        yield return selectedIdx.Value;
+        yield return new MidiInput(selectedIdx.Value, midiInCapabilities[selectedIdx.Value].Name);
     }
 
-    private static MidiInput CreateMidiInput(MidiInCapabilities capabilities)
+    private static MidiInput CreateMidiInput(int deviceId, MidiInCapabilities capabilities)
     {
-        return new MidiInput(capabilities.ProductName);
+        return new MidiInput(deviceId, capabilities.ProductName);
     }
 }

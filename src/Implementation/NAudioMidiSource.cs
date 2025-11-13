@@ -1,28 +1,37 @@
 using System.Reactive.Linq;
+using MidiRecorder.Application.Record;
 using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
+internal class NAudioMidiSource : IMidiSource<NAudioMidiEvent>
 {
     private readonly MidiIn[] _midiIns;
+    private readonly CancellationTokenSource _cts = new();
 
-    public NAudioMidiSource(TypedRecordOptions typedOptions)
+    public NAudioMidiSource(IEnumerable<MidiInput> midiInputs)
     {
-        var q = typedOptions.MidiInputs.Select(
-                inputId =>
+        var ct = _cts.Token;
+        var q = midiInputs.Select(
+                input =>
                 {
-                    var midiIn = new MidiIn(inputId);
+                    var midiIn = new MidiIn(input.Id);
                     var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
                             a => midiIn.MessageReceived += a,
                             a => midiIn.MessageReceived -= a)
+                        .TakeUntil(ct)
                         .Select(x => x.EventArgs)
                         .Select(
                             e =>
                             {
-                                var eventClone = e.MidiEvent.Clone();
+                                MidiEvent? eventClone = e.MidiEvent.Clone();
                                 eventClone.AbsoluteTime = e.Timestamp;
-                                return new MidiEventWithPort(eventClone, inputId);
+                                if (eventClone is NoteOnEvent non)
+                                {
+                                    non.NoteLength = 0;
+                                }
+
+                                return new NAudioMidiEvent(eventClone, input.Id);
                             });
                     return (midiIn, observable);
                 })
@@ -40,7 +49,7 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
         }
     }
 
-    public IObservable<MidiEventWithPort> AllEvents { get; }
+    public IObservable<NAudioMidiEvent> AllEvents { get; }
 
     public void Dispose()
     {
@@ -49,5 +58,7 @@ public class NAudioMidiSource : IMidiSource<MidiEventWithPort>
             midiIn.Stop();
             midiIn.Dispose();
         }
+        _cts.Cancel();
+        _cts.Dispose();
     }
 }
