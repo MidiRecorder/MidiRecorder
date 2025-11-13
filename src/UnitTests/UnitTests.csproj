@@ -5,7 +5,7 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>MidiRecorder.Tests</RootNamespace>
     <AssemblyName>MidiRecorder.Tests</AssemblyName>
-    <LangVersion>14</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
