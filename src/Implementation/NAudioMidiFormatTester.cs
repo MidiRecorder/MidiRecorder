@@ -1,4 +1,5 @@
 using LanguageExt;
+using MidiRecorder.Application.Record;
 using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;

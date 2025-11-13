@@ -2,7 +2,7 @@ using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public static class NAudioMidiFileSaver
+internal static class NAudioMidiFiles
 {
     public static void Save(IEnumerable<IEnumerable<NAudioMidiEvent>> tracks, string filePath, int timeDivision)
     {
@@ -19,5 +19,10 @@ public static class NAudioMidiFileSaver
         }
 
         MidiFile.Export(filePath, midiEventCollection);
+    }
+    
+    public static IEnumerable<IEnumerable<NAudioMidiEvent>> Open(string filePath, int port)
+    {
+        return new MidiFile(filePath).Events.Select(t => t.Select(e => new NAudioMidiEvent(e, port)));
     }
 }

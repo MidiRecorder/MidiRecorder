@@ -2,6 +2,7 @@ using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MidiRecorder.Application;
+using MidiRecorder.Application.Record;
 using NSubstitute;
 
 namespace MidiRecorder.Tests;

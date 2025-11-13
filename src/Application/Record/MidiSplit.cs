@@ -1,6 +1,6 @@
 using LanguageExt;
 
-namespace MidiRecorder.Application;
+namespace MidiRecorder.Application.Record;
 
 public class MidiSplit<TMidiEvent>
 {

@@ -1,11 +1,12 @@
-namespace MidiRecorder.Application;
+namespace MidiRecorder.Application.Record;
 
 public record TypedRecordOptions(
     TimeSpan DelayToSave,
     TimeSpan TimeoutToSave,
     string PathFormatString,
     int MidiResolution,
-    IEnumerable<(int id, string name)> MidiInputs)
+    bool DumpFile,
+    IEnumerable<MidiInput> MidiInputs)
 {
     public override string ToString()
     {

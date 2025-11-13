@@ -2,7 +2,7 @@ using System;
 using FluentAssertions;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MidiRecorder.Application;
+using MidiRecorder.Application.Record;
 
 namespace MidiRecorder.Tests;
 
@@ -35,15 +35,14 @@ public class NoteDurationTests
         
         result2.Should()
             .BeEquivalentTo(
-                new []
-                {
-                    Recorded.Create(101, ("CC1", TimeSpan.Zero)),
+            [
+                Recorded.Create(101, ("CC1", TimeSpan.Zero)),
                     Recorded.Create(104, ("On 45", TimeSpan.Zero)),
                     Recorded.Create(106, ("On 48", TimeSpan.Zero)),
                     Recorded.Create(111, ("Off 45", TimeSpan.FromTicks(111-104))),
                     Recorded.Create(121, ("CC2", TimeSpan.Zero)),
                     Recorded.Create(131, ("Off 48", TimeSpan.FromTicks(131L-106L))),
-                    Recorded.Create(141, ("CC3", TimeSpan.Zero)),
-                });
+                    Recorded.Create(141, ("CC3", TimeSpan.Zero))
+            ]);
     }
 }

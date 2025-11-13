@@ -1,3 +1,3 @@
 namespace MidiRecorder.Application;
 
-public record MidiInput(string Name);
+public record MidiInput(int Id, string Name);

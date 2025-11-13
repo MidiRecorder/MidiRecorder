@@ -2,18 +2,18 @@ using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public static class NAudioMidiInputs
+internal static class NAudioMidiInputs
 {
     public static IEnumerable<MidiInput> GetMidiInputs()
     {
         for (var device = 0; device < MidiIn.NumberOfDevices; device++)
         {
             MidiInCapabilities midiInCapabilities = MidiIn.DeviceInfo(device);
-            yield return CreateMidiInput(midiInCapabilities);
+            yield return CreateMidiInput(device, midiInCapabilities);
         }
     }
 
-    public static IEnumerable<(int, string)> SearchMidiInputId(string midiInputName)
+    public static IEnumerable<MidiInput> SearchMidiInputId(string midiInputName)
     {
         var midiInCapabilities = GetMidiInputs().ToArray();
 
@@ -26,7 +26,7 @@ public static class NAudioMidiInputs
         {
             foreach (var i in Enumerable.Range(0, midiInCapabilities.Length))
             {
-                yield return (i, midiInCapabilities[i].Name);
+                yield return new MidiInput(i, midiInCapabilities[i].Name);
             }
 
             yield break;
@@ -47,11 +47,11 @@ public static class NAudioMidiInputs
             yield break;
         }
 
-        yield return (selectedIdx.Value, midiInCapabilities[selectedIdx.Value].Name);
+        yield return new MidiInput(selectedIdx.Value, midiInCapabilities[selectedIdx.Value].Name);
     }
 
-    private static MidiInput CreateMidiInput(MidiInCapabilities capabilities)
+    private static MidiInput CreateMidiInput(int deviceId, MidiInCapabilities capabilities)
     {
-        return new MidiInput(capabilities.ProductName);
+        return new MidiInput(deviceId, capabilities.ProductName);
     }
 }

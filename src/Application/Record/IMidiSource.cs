@@ -1,4 +1,4 @@
-namespace MidiRecorder.Application;
+namespace MidiRecorder.Application.Record;
 
 public interface IMidiSource<TMidiEvent> : IDisposable
 {

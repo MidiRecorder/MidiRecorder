@@ -1,7 +1,7 @@
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
-namespace MidiRecorder.Application;
+namespace MidiRecorder.Application.Record;
 
 public static class NoteDuration
 {

@@ -6,6 +6,7 @@ using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MidiRecorder.Application;
 using MidiRecorder.Application.Implementation;
+using MidiRecorder.Application.Record;
 using NAudio.Midi;
 using static LanguageExt.Prelude;
 using static MidiRecorder.Tests.Events;
@@ -18,7 +19,7 @@ public class MidiSplitterTests
     [TestInitialize]
     public void TestInit()
     {
-        AssertionOptions.AssertEquivalencyUsing(o => o.WithStrictOrdering().ComparingByMembers<Recorded<NAudioMidiEvent>>());
+        AssertionConfiguration.Current.Equivalency.Modify(o => o.WithStrictOrdering().ComparingByMembers<Recorded<NAudioMidiEvent>>());
     }
     
     [TestMethod]
@@ -332,10 +333,9 @@ public class MidiSplitterTests
         var result = sut.SavingPoints.Record(scheduler);
         result.Should()
             .BeEquivalentTo(
-                new[]
-                {
-                    Recorded.OnNext(events.Last().Time + timeToSaveAfterAllOff.Ticks + 1, unit),
-                });
+            [
+                Recorded.OnNext(events.Last().Time + timeToSaveAfterAllOff.Ticks + 1, unit)
+            ]);
     }
 
     [TestMethod]
@@ -360,10 +360,9 @@ public class MidiSplitterTests
         var result = sut.SavingPoints.Record(scheduler);
         result.Should()
             .BeEquivalentTo(
-                new[]
-                {
-                    Recorded.OnNext(149+16+1, unit),
-                });
+            [
+                Recorded.OnNext(149+16+1, unit)
+            ]);
     }
 
     [TestMethod]
@@ -388,17 +387,16 @@ public class MidiSplitterTests
         var result = sut.NotesAndPedalsWithoutHeld.Record(scheduler);
         result.Should()
             .BeEquivalentTo(
-                new[]
-                {
-                    Recorded.OnNext(100+1, NoteOn(2, 96, 64, 3)),
+            [
+                Recorded.OnNext(100+1, NoteOn(2, 96, 64, 3)),
                     Recorded.OnNext(101+1, NoteOn(1, 96, 64, 3)),
                     Recorded.OnNext(101+30, NoteOff(2, 96, 64, 3)),
                     Recorded.OnNext(101+30+1, NoteOff(1, 96, 64, 3)),
                     Recorded.OnNext(140+1, NoteOn(2, 95, 64, 3)),
                     Recorded.OnNext(141+1, NoteOn(1, 95, 64, 3)),
                     Recorded.OnNext(142+1, NoteOff(2, 95, 64, 3)),
-                    Recorded.OnNext(149+1, NoteOff(1, 95, 64, 3)),
-                });
+                    Recorded.OnNext(149+1, NoteOff(1, 95, 64, 3))
+            ]);
     }
 
     [TestMethod]
@@ -489,11 +487,10 @@ public class MidiSplitterTests
 
         var result2 = sut.AdjustedReleaseMarkers.Record(scheduler);
         result2.Should()
-            .BeEquivalentTo(new[]
-            {
+            .BeEquivalentTo([
                 Recorded.OnNext(106+1, unit),
-                Recorded.OnNext(130+1, unit),
-            });
+                Recorded.OnNext(130+1, unit)
+            ]);
         return;
 
         MidiSplit<NAudioMidiEvent> CreateSplitAux(TestScheduler testScheduler) =>

@@ -1,21 +1,25 @@
 using System.Reactive.Linq;
+using MidiRecorder.Application.Record;
 using NAudio.Midi;
 
 namespace MidiRecorder.Application.Implementation;
 
-public class NAudioMidiSource : IMidiSource<NAudioMidiEvent>
+internal class NAudioMidiSource : IMidiSource<NAudioMidiEvent>
 {
     private readonly MidiIn[] _midiIns;
+    private readonly CancellationTokenSource _cts = new();
 
-    public NAudioMidiSource(TypedRecordOptions typedOptions)
+    public NAudioMidiSource(IEnumerable<MidiInput> midiInputs)
     {
-        var q = typedOptions.MidiInputs.Select(
+        var ct = _cts.Token;
+        var q = midiInputs.Select(
                 input =>
                 {
-                    var midiIn = new MidiIn(input.id);
+                    var midiIn = new MidiIn(input.Id);
                     var observable = Observable.FromEventPattern<MidiInMessageEventArgs>(
                             a => midiIn.MessageReceived += a,
                             a => midiIn.MessageReceived -= a)
+                        .TakeUntil(ct)
                         .Select(x => x.EventArgs)
                         .Select(
                             e =>
@@ -27,7 +31,7 @@ public class NAudioMidiSource : IMidiSource<NAudioMidiEvent>
                                     non.NoteLength = 0;
                                 }
 
-                                return new NAudioMidiEvent(eventClone, input.id);
+                                return new NAudioMidiEvent(eventClone, input.Id);
                             });
                     return (midiIn, observable);
                 })
@@ -54,5 +58,7 @@ public class NAudioMidiSource : IMidiSource<NAudioMidiEvent>
             midiIn.Stop();
             midiIn.Dispose();
         }
+        _cts.Cancel();
+        _cts.Dispose();
     }
 }

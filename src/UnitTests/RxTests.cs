@@ -16,7 +16,7 @@ public class RxTests
     [TestInitialize]
     public void TestInit()
     {
-        AssertionOptions.AssertEquivalencyUsing(o => o.WithStrictOrdering());
+        AssertionConfiguration.Current.Equivalency.Modify(o => o.WithStrictOrdering());
     }
 
     [TestMethod]

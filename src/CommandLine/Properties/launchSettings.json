@@ -10,7 +10,7 @@
     },
     "DateFolderSchema": {
       "commandName": "Project",
-      "commandLineArgs": "-d 5000 -f {Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid"
+      "commandLineArgs": "-d 5000 -f {Now:yyyy}\\{Now:MM}\\{Now:dd_HH_mm_ss}.mid -p dump.txt"
     },
     "List": {
       "commandName": "Project",

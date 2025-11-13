@@ -4,11 +4,12 @@ using CommandLine;
 using CommandLine.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MidiRecorder.Application;
 using MidiRecorder.Application.Implementation;
-using MidiRecorder.CommandLine;
+using MidiRecorder.Application.ListMidiInputs;
+using MidiRecorder.Application.Record;
+using MidiRecorder.CommandLine.ListMidiInputs;
 using MidiRecorder.CommandLine.Logging;
-using AssemblyExtensions = MidiRecorder.Application.AssemblyExtensions;
+using AssemblyExtensions = MidiRecorder.Application.Record.AssemblyExtensions;
 
 const string environmentVarPrefix = "MidiRecorder_";
 IConfigurationRoot config = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, false)
@@ -32,23 +33,29 @@ var parserResult = parser.ParseArguments<RecordOptions, ListMidiInputsOptions>(a
 
 try
 {
-    var appService = new ApplicationService<NAudioMidiEvent>(
-        NAudioMidiInputs.GetMidiInputs,
-        loggerFactory.CreateLogger<ApplicationService<NAudioMidiEvent>>(),
-        NAudioMidiInputs.SearchMidiInputId,
-        NAudioMidiFormatTester.TestFormat,
-        o => new NAudioMidiSource(o),
-        NAudioMidiTrackBuilder.BuildTracks,
-        NAudioMidiFileSaver.Save,
-        errorMessage =>
-        {
-            logger.LogCritical("{Message}", errorMessage);
-            DisplayHelp(parserResult, Enumerable.Empty<Error>());
-            return 1;
-        });
+
     return parserResult.MapResult<IRecordOptions, ListMidiInputsOptions, int>(
-        appService.Record,
-        _ => appService.ListMidiInputs(),
+        options =>
+        {
+            var appService = new RecordService<NAudioMidiEvent>(
+                NAudioMidiFormatTester.TestFormat,
+                loggerFactory.CreateLogger<RecordService<NAudioMidiEvent>>(),
+                new NAudioMidiTools(),
+                errorMessage =>
+                {
+                    logger.LogCritical("{Message}", errorMessage);
+                    DisplayHelp(parserResult, Enumerable.Empty<Error>());
+                    return 1;
+                });
+            return appService.Record(options);
+        },
+        _ =>
+        {
+            var appService = new ListMidiInputsService<NAudioMidiEvent>(
+                loggerFactory.CreateLogger<ListMidiInputsService<NAudioMidiEvent>>(),
+                new NAudioMidiTools());
+            return appService.ListMidiInputs();
+        },
         errors => DisplayHelp(parserResult, errors));
 }
 #pragma warning disable CA1031 Topmost catch to present exception

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 - Customize MIDI track names.
-
+## [1.3.0] - 2025-11-14
 ## [1.2.0] - 2024-03-11
 
 ### Added

@@ -1,12 +1,12 @@
 using LanguageExt;
 
-namespace MidiRecorder.Application;
+namespace MidiRecorder.Application.Record;
 
 internal static class OptionsValidator
 {
     public static Validation<string, TypedRecordOptions> Validate(
-        this IRecordOptions options,
-        Func<string, IEnumerable<(int, string)>> midiInputSearch,
+        IRecordOptions options,
+        Func<string, IEnumerable<MidiInput>> midiInputSearch,
         Func<string, Validation<string, Unit>> testFormat) =>
         options.MidiInputs
             .ToSeq()
@@ -22,5 +22,6 @@ internal static class OptionsValidator
                                 TimeSpan.FromMilliseconds(30000),
                                 options.PathFormatString,
                                 options.MidiResolution,
+                                options.DumpFile,
                                 inputIds)));
 }

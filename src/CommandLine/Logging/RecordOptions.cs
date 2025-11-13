@@ -1,21 +1,22 @@
 using System.Diagnostics.CodeAnalysis;
 using CommandLine;
 using CommandLine.Text;
-using MidiRecorder.Application;
+using MidiRecorder.Application.Record;
 
-namespace MidiRecorder.CommandLine;
+namespace MidiRecorder.CommandLine.Logging;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [Verb("record", true, HelpText = "Records MIDI to files")]
 public class RecordOptions : IRecordOptions
 {
-    public RecordOptions(IEnumerable<string> midiInputs, long delayToSave, string pathFormatString, int midiResolution)
+    public RecordOptions(IEnumerable<string> midiInputs, long delayToSave, string pathFormatString, int midiResolution, bool dumpFile = false)
     {
         MidiInputs = midiInputs;
         PathFormatString = pathFormatString;
         DelayToSave = delayToSave;
         MidiResolution = midiResolution;
+        DumpFile = dumpFile;
     }
 
     [Option('i', "input", HelpText = "MIDI Input name or index", Default = new[] { "*" }, Separator = ',')]
@@ -34,6 +35,9 @@ public class RecordOptions : IRecordOptions
     [Option('r', "resolution", HelpText = "MIDI resolution in pulses per quarter note (PPQN)", Default = 480)]
     public int MidiResolution { get; }
 
+    [Option('p', "dump", HelpText = "Dump input into dump file (at the current dir)")]
+    public bool DumpFile { get; }
+    
     [Usage]
     public static IEnumerable<Example> Examples
     {
@@ -49,6 +53,9 @@ public class RecordOptions : IRecordOptions
                     7000,
                     @"{Now:yyyy}\{Now:MM}\{Now:dd}\{Now:yyyyMMddHHmmss}_{NumberOfNoteEvents}.mid",
                     960));
+            yield return new Example(
+                "generate dump file",
+                new RecordOptions(new[] { "M1", "Triton" }, 5000, "{Now}.mid", 480, dumpFile: true));
         }
     }
 }

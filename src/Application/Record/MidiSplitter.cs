@@ -2,7 +2,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using static LanguageExt.Prelude;
 
-namespace MidiRecorder.Application;
+namespace MidiRecorder.Application.Record;
 
 public static class MidiSplitter
 {
@@ -26,7 +26,8 @@ public static class MidiSplitter
         var notesAndPedalWithoutHeld = Observable.Merge(notesAndPedals, extraOffEvents);
         
         // How many notes + sustain pedal are held?
-        var heldNotesAndPedals = notesAndPedalWithoutHeld.Select(e => e.IsNoteOn || e.IsPedalOn ? 1 : e.IsNoteOff || e.IsPedalOff ? -1 : 0)
+        var heldNotesAndPedals = notesAndPedalWithoutHeld
+            .Select(e => e.IsNoteOn || e.IsPedalOn ? 1 : e.IsNoteOff || e.IsPedalOff ? -1 : 0)
             .Where(x => x != 0)
             .Scan(0, (accum, n) => Math.Max(0, accum + n));
 
