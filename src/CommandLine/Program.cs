@@ -58,7 +58,7 @@ try
         },
         errors => DisplayHelp(parserResult, errors));
 }
-#pragma warning disable CA1031 Topmost catch to present exception
+#pragma warning disable CA1031 // Topmost catch to present exception
 catch (Exception ex)
 #pragma warning restore CA1031
 {
