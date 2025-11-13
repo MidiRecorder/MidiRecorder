@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 - Customize MIDI track names.
-## [1.3.0] - 2025-11-14
-## [1.2.0] - 2024-03-11
+
+## [1.2.0] - 2025-11-14
 
 ### Added
 - MIDI files now have track names that show channel and port.
+- Dump all MIDI input to file (option `-f`).
 
 ### Fixed
 - Issue #17: problem with empty saves.
