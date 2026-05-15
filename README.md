@@ -1,4 +1,4 @@
-[![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/PullRequest.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/PullRequest.yml)
+[![Build status](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml/badge.svg)](https://github.com/icalvo/Icm.MidiRecorder/actions/workflows/ci.yml)
 ![Nuget](https://img.shields.io/nuget/v/midirec)
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/midirec?label=nuget%20pre)
 ![Downloads](https://img.shields.io/nuget/dt/midirec)
@@ -25,8 +25,8 @@ favorite DAW.
 
 ## Installation
 
-MIDI Recorder is a Microsoft .NET 6 application, so you will need to have the runtime installed. Please head to
-the [SDK downloads page](https://dotnet.microsoft.com/download/visual-studio-sdks).
+MIDI Recorder targets .NET 8 and runs on any installed .NET 8 or newer runtime (including .NET 9 and 10). Install the
+[.NET SDK or runtime](https://dotnet.microsoft.com/download) if you do not already have it.
 
 You can install the tool with:
 
@@ -108,3 +108,18 @@ this option to configure the delay in milliseconds (so for example 8 seconds wou
 
 Resolution of the saved MIDI file in pulses per quarter note (PPQ). Usually it has been 480 (and this is the default
 when you omit this option), but recent DAWs have started using 960 PPG by default and support even higher resolutions.
+
+## Building and releasing
+
+From the repository root:
+
+```bash
+dotnet restore src/Icm.MidiRecorder.slnx
+dotnet build src/Icm.MidiRecorder.slnx -c Release
+dotnet test src/Icm.MidiRecorder.slnx -c Release --no-build
+```
+
+CI runs the same steps on push and pull requests (see `.github/workflows/ci.yml`). Pull requests that change behavior must update `CHANGELOG.md`, unless the PR description contains `NO_FUNCTIONALITY`.
+
+NuGet packages are published by **Publish to NuGet** when you [publish a GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) for tag `vX.Y.Z`, or manually via workflow dispatch. Configure the repository secret **`NUGET_API_KEY`**. For a step-by-step release checklist, use the **deploy-release** Cursor skill (`.cursor/skills/deploy-release/SKILL.md`).
+
