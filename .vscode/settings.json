@@ -16,7 +16,11 @@
     "titleBar.activeBackground": "#c88929",
     "titleBar.activeForeground": "#15202b",
     "titleBar.inactiveBackground": "#c8892999",
-    "titleBar.inactiveForeground": "#15202b99"
+    "titleBar.inactiveForeground": "#15202b99",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#daa14a",
+    "statusBarItem.remoteBackground": "#c88929",
+    "statusBarItem.remoteForeground": "#15202b"
   },
   "peacock.color": "#c88929",
   "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)",
