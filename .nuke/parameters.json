@@ -1,4 +1,4 @@
 {
   "$schema": "./build.schema.json",
-  "Solution": "src/Icm.MidiRecorder.sln"
+  "Solution": "src/Icm.MidiRecorder.slnx"
 }

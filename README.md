@@ -25,8 +25,8 @@ favorite DAW.
 
 ## Installation
 
-MIDI Recorder is a Microsoft .NET 6 application, so you will need to have the runtime installed. Please head to
-the [SDK downloads page](https://dotnet.microsoft.com/download/visual-studio-sdks).
+MIDI Recorder targets .NET 8 and runs on any installed .NET 8 or newer runtime (including .NET 9 and 10). Install the
+[.NET SDK or runtime](https://dotnet.microsoft.com/download) if you do not already have it.
 
 You can install the tool with:
 
