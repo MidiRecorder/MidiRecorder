@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `record` options `--raw-capture`, `--replay`, and `--replay-realtime`: write a Type 1 debug MIDI of the live input stream and replay from file (optional realtime pacing).
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 - Replaced Nuke with plain `dotnet` GitHub Actions; NuGet publish uses `NUGET_API_KEY` and GitHub Releases (see `.github/workflows/publish.yml`).
