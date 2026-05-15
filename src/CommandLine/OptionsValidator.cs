@@ -13,6 +13,27 @@ internal class OptionsValidator : IOptionsValidator
 
     public (TypedRecordOptions? typedRecordOptions, string errorMessage) Validate(RecordOptions options)
     {
+        var replayPath = string.IsNullOrWhiteSpace(options.ReplayMidi) ? null : options.ReplayMidi.Trim();
+        if (replayPath != null)
+        {
+            if (!File.Exists(replayPath))
+            {
+                return (null, $"Replay MIDI file not found: '{replayPath}'");
+            }
+
+            return (
+                new TypedRecordOptions(
+                    TimeSpan.FromMilliseconds(options.DelayToSave),
+                    TimeSpan.FromMilliseconds(30000),
+                    options.PathFormatString,
+                    options.MidiResolution,
+                    Array.Empty<int>(),
+                    string.IsNullOrWhiteSpace(options.RawCapturePath) ? null : options.RawCapturePath.Trim(),
+                    replayPath,
+                    options.ReplayRealtime),
+                "OK");
+        }
+
         var inputIds = options.MidiInputs.SelectMany(_service.GetMidiInputId).Distinct().ToArray();
         if (inputIds.Length == 0)
         {
@@ -25,6 +46,10 @@ internal class OptionsValidator : IOptionsValidator
                 TimeSpan.FromMilliseconds(30000),
                 options.PathFormatString,
                 options.MidiResolution,
-                inputIds), "OK");
+                inputIds,
+                string.IsNullOrWhiteSpace(options.RawCapturePath) ? null : options.RawCapturePath.Trim(),
+                null,
+                false),
+            "OK");
     }
 }
