@@ -9,12 +9,22 @@ namespace MidiRecorder.CommandLine;
 [Verb("record", true, HelpText = "Records MIDI to files")]
 public class RecordOptions
 {
-    public RecordOptions(IEnumerable<string> midiInputs, long delayToSave, string pathFormatString, int midiResolution)
+    public RecordOptions(
+        IEnumerable<string> midiInputs,
+        long delayToSave,
+        string pathFormatString,
+        int midiResolution,
+        string? rawCapturePath,
+        string? replayMidi,
+        bool replayRealtime)
     {
         MidiInputs = midiInputs;
         PathFormatString = pathFormatString;
         DelayToSave = delayToSave;
         MidiResolution = midiResolution;
+        RawCapturePath = rawCapturePath;
+        ReplayMidi = replayMidi;
+        ReplayRealtime = replayRealtime;
     }
 
     [Option('i', "input", HelpText = "MIDI Input name or index", Default = new[] { "*" }, Separator = ',')]
@@ -33,6 +43,23 @@ public class RecordOptions
     [Option('r', "resolution", HelpText = "MIDI resolution in pulses per quarter note (PPQN)", Default = 480)]
     public int MidiResolution { get; }
 
+    [Option(
+        "raw-capture",
+        HelpText =
+            "If set, writes a single debug .mid on exit with the same event stream the tool receives (one track per input port, timing from the driver timestamps).")]
+    public string? RawCapturePath { get; }
+
+    [Option(
+        "replay",
+        HelpText =
+            "Play events from this .mid file instead of hardware input (use with captures from --raw-capture, or any Type 1 file with per-port tracks).")]
+    public string? ReplayMidi { get; }
+
+    [Option(
+        "replay-realtime",
+        HelpText = "When using --replay, pace events using tick timing from the file (default: replay as fast as possible).")]
+    public bool ReplayRealtime { get; }
+
     [Usage]
     public static IEnumerable<Example> Examples
     {
@@ -40,14 +67,17 @@ public class RecordOptions
         {
             yield return new Example(
                 "normal scenario",
-                new RecordOptions(new[] { "M1", "Triton" }, 5000, "{Now}.mid", 480));
+                new RecordOptions(new[] { "M1", "Triton" }, 5000, "{Now}.mid", 480, null, null, false));
             yield return new Example(
                 "date-based folder structure",
                 new RecordOptions(
                     new[] { "Impulse" },
                     7000,
                     @"{Now:yyyy}\{Now:MM}\{Now:dd}\{Now:yyyyMMddHHmmss}_{NumberOfNoteEvents}.mid",
-                    960));
+                    960,
+                    null,
+                    null,
+                    false));
         }
     }
 }

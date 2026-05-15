@@ -35,7 +35,10 @@ public class MidiRecorderApplicationService<TMidiEvent>
     {
         PrintOptions(options);
 
-        (TimeSpan delayToSave, TimeSpan timeoutToSave, var pathFormatString, var midiResolution, _) = options;
+        var delayToSave = options.DelayToSave;
+        var timeoutToSave = options.TimeoutToSave;
+        var pathFormatString = options.PathFormatString;
+        var midiResolution = options.MidiResolution;
         if (!_formatTester.TestFormat(pathFormatString))
         {
             return null;
@@ -75,12 +78,24 @@ public class MidiRecorderApplicationService<TMidiEvent>
 
     private void PrintOptions(TypedRecordOptions options)
     {
-        (TimeSpan delayToSave, TimeSpan timeoutToSave, var pathFormatString, var midiResolution, _) = options;
 #pragma warning disable CA1848
         _logger.LogInformation("Working dir: {CurrentDirectory}", Environment.CurrentDirectory);
-        _logger.LogInformation("Delay to save: {DelayToSave}", delayToSave);
-        _logger.LogInformation("Timeout to save: {TimeoutToSave}", timeoutToSave);
-        _logger.LogInformation("Output Path: {PathFormatString}", pathFormatString);
-        _logger.LogInformation("MIDI resolution: {MidiResolution}", midiResolution);
+        _logger.LogInformation("Delay to save: {DelayToSave}", options.DelayToSave);
+        _logger.LogInformation("Timeout to save: {TimeoutToSave}", options.TimeoutToSave);
+        _logger.LogInformation("Output Path: {PathFormatString}", options.PathFormatString);
+        _logger.LogInformation("MIDI resolution: {MidiResolution}", options.MidiResolution);
+        if (!string.IsNullOrEmpty(options.ReplayMidiPath))
+        {
+            _logger.LogInformation(
+                "Replay from file: {ReplayPath} (realtime pacing: {ReplayRealtime})",
+                options.ReplayMidiPath,
+                options.ReplayRealtime);
+        }
+
+        if (!string.IsNullOrEmpty(options.RawCapturePath))
+        {
+            _logger.LogInformation("Raw capture file: {RawCapturePath}", options.RawCapturePath);
+        }
+#pragma warning restore CA1848
     }
 }

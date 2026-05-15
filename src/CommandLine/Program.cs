@@ -75,7 +75,7 @@ int Record(RecordOptions options)
         return 1;
     }
 
-    var sourceBuilder = new NAudioMidiSourceBuilder();
+    var sourceBuilder = new NAudioConfigurableMidiSourceBuilder();
     var saver = new NAudioMidiFileSaver();
     var analyzer = new NAudioMidiEventAnalyzer();
     var splitter = new MidiSplitter<MidiEventWithPort>();
