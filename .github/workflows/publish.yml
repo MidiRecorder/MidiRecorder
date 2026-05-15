@@ -57,7 +57,7 @@ jobs:
 
       - name: Push to NuGet.org
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ secrets.NUGET_TOKEN }}
         run: |
           dotnet nuget push "${{ github.workspace }}/artifacts/"*.nupkg \
             --api-key "$NUGET_API_KEY" \
