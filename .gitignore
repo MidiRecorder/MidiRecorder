@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Local tooling / legacy Nuke temp
+.nuke/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

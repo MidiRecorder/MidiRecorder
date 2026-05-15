@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore src/Icm.MidiRecorder.slnx
+
+      - name: Build
+        run: dotnet build src/Icm.MidiRecorder.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test src/Icm.MidiRecorder.slnx -c Release --no-build --verbosity normal
+
+      - name: Verify CHANGELOG updated
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          BODY=$(gh pr view "$PR_NUMBER" --json body -q .body)
+          if printf '%s' "$BODY" | grep -qi 'NO_FUNCTIONALITY'; then
+            echo "Skipping changelog check (NO_FUNCTIONALITY in PR description)."
+            exit 0
+          fi
+          FILES=$(gh pr diff "$PR_NUMBER" --name-only)
+          if printf '%s\n' "$FILES" | grep -qx 'CHANGELOG.md'; then
+            exit 0
+          fi
+          echo "::error::CHANGELOG.md was not modified. Update it or add NO_FUNCTIONALITY to the PR description."
+          exit 1

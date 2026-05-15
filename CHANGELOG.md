@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
+- Replaced Nuke with plain `dotnet` GitHub Actions; NuGet publish uses `NUGET_API_KEY` and GitHub Releases (see `.github/workflows/publish.yml`).
 
 ## [1.2.0] - 2026-05-15
 

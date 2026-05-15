@@ -9,9 +9,6 @@
     <File Path="../CHANGELOG.md" />
     <File Path="../README.md" />
   </Folder>
-  <Project Path="../build/_build.csproj">
-    <Build Solution="Debug|Any CPU" Project="false" />
-  </Project>
   <Project Path="Application/Application.csproj" />
   <Project Path="CommandLine/CommandLine.csproj" />
   <Project Path="Implementation/Implementation.csproj" />

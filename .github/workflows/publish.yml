@@ -1,0 +1,65 @@
+name: Publish to NuGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "SemVer package version (e.g. 1.2.0)"
+        required: true
+        default: "1.2.0"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            TAG="${TAG#v}"
+            VALUE="$TAG"
+          else
+            VALUE="${{ github.event.inputs.version }}"
+            VALUE="${VALUE#v}"
+          fi
+          echo "value=$VALUE" >> "$GITHUB_OUTPUT"
+          if [[ "$VALUE" == *-* ]]; then
+            ASM="${VALUE%%-*}"
+          else
+            ASM="$VALUE"
+          fi
+          echo "assembly=$ASM" >> "$GITHUB_OUTPUT"
+
+      - name: Pack
+        run: >
+          dotnet pack src/CommandLine/CommandLine.csproj
+          -c Release
+          -o "${{ github.workspace }}/artifacts"
+          -p:Version=${{ steps.version.outputs.value }}
+          -p:PackageVersion=${{ steps.version.outputs.value }}
+          -p:AssemblyVersion=${{ steps.version.outputs.assembly }}
+          -p:FileVersion=${{ steps.version.outputs.assembly }}
+          -p:InformationalVersion=${{ steps.version.outputs.value }}
+
+      - name: Push to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "${{ github.workspace }}/artifacts/"*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
