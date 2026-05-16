@@ -16,7 +16,8 @@ public class RecordOptions
         int midiResolution,
         string? rawCapturePath,
         string? replayMidi,
-        bool replayRealtime)
+        bool replayRealtime,
+        string marker)
     {
         MidiInputs = midiInputs;
         PathFormatString = pathFormatString;
@@ -25,6 +26,7 @@ public class RecordOptions
         RawCapturePath = rawCapturePath;
         ReplayMidi = replayMidi;
         ReplayRealtime = replayRealtime;
+        Marker = marker;
     }
 
     [Option('i', "input", HelpText = "MIDI Input name or index", Default = new[] { "*" }, Separator = ',')]
@@ -60,6 +62,12 @@ public class RecordOptions
         HelpText = "When using --replay, pace events using tick timing from the file (default: replay as fast as possible).")]
     public bool ReplayRealtime { get; }
 
+    [Option(
+        "marker",
+        Default = "_good",
+        HelpText = "Suffix appended to the filename when you press m to mark the last saved file (default: _good).")]
+    public string Marker { get; }
+
     [Usage]
     public static IEnumerable<Example> Examples
     {
@@ -67,7 +75,7 @@ public class RecordOptions
         {
             yield return new Example(
                 "normal scenario",
-                new RecordOptions(new[] { "M1", "Triton" }, 5000, "{Now}.mid", 480, null, null, false));
+                new RecordOptions(new[] { "M1", "Triton" }, 5000, "{Now}.mid", 480, null, null, false, "_good"));
             yield return new Example(
                 "date-based folder structure",
                 new RecordOptions(
@@ -77,7 +85,8 @@ public class RecordOptions
                     960,
                     null,
                     null,
-                    false));
+                    false,
+                    "_good"));
         }
     }
 }

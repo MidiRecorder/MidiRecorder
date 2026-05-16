@@ -96,8 +96,28 @@ int Record(RecordOptions options)
         return 1;
     }
 
-    logger.LogInformation("Recording started, Press any key to quit");
-    Console.ReadLine();
+    if (Console.IsInputRedirected)
+    {
+        logger.LogInformation(
+            "Recording started. Input is redirected; marking is unavailable. Press Enter to quit.");
+        Console.ReadLine();
+        return 0;
+    }
+
+    logger.LogInformation(
+        "Recording started. Press m to mark the last saved file; any other key to quit.");
+    while (true)
+    {
+        var key = Console.ReadKey(intercept: true);
+        if (key.Key is ConsoleKey.M)
+        {
+            svc.TryMarkLastSavedFile(out _);
+            continue;
+        }
+
+        break;
+    }
+
     return 0;
 }
 

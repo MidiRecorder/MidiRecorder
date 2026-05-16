@@ -6,6 +6,7 @@ public record TypedRecordOptions(
     string PathFormatString,
     int MidiResolution,
     IEnumerable<int> MidiInputs,
+    string MarkerSuffix,
     string? RawCapturePath = null,
     string? ReplayMidiPath = null,
     bool ReplayRealtime = false)
@@ -13,6 +14,6 @@ public record TypedRecordOptions(
     public override string ToString()
     {
         return
-            $"{{ delayToSave = {DelayToSave}, timeoutToSave = {TimeoutToSave}, pathFormatString = {PathFormatString}, midiResolution = {MidiResolution}, rawCapturePath = {RawCapturePath}, replayMidiPath = {ReplayMidiPath}, replayRealtime = {ReplayRealtime} }}";
+            $"{{ delayToSave = {DelayToSave}, timeoutToSave = {TimeoutToSave}, pathFormatString = {PathFormatString}, midiResolution = {MidiResolution}, markerSuffix = {MarkerSuffix}, rawCapturePath = {RawCapturePath}, replayMidiPath = {ReplayMidiPath}, replayRealtime = {ReplayRealtime} }}";
     }
 }
