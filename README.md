@@ -50,8 +50,9 @@ midirec
 ```
 
 When called this way, it will record from all your MIDI inputs at once. Every time it detects a pause of 5 seconds in
-all the devices, it saves a file with the format `yyyyMMddHHmmss.mid` in your current directory. You can stop recording
-by pressing any key.
+all the devices, it saves a file with the format `yyyyMMddHHmmss.mid` in your current directory. While recording,
+press **m** to mark the last saved file as a good impro (renames it with a `_good` suffix by default). Press any other
+key to stop recording.
 
 You can further customize the behavior by specifying the MIDI inputs to be recorded, the delay and the format of the
 saved filenames.
@@ -108,6 +109,13 @@ this option to configure the delay in milliseconds (so for example 8 seconds wou
 
 Resolution of the saved MIDI file in pulses per quarter note (PPQ). Usually it has been 480 (and this is the default
 when you omit this option), but recent DAWs have started using 960 PPG by default and support even higher resolutions.
+
+### Marking good impros (`--marker`)
+
+After a file is saved, press **m** in the console to rename the most recently saved file by appending a suffix before
+the extension (default `_good`, so `20260516143022.mid` becomes `20260516143022_good.mid`). Use `--marker` to choose a
+different suffix, for example `--marker _keeper`. Pressing **m** again on the same saved file (before another save) does nothing; each new auto-save can be marked once.
+Marking requires an interactive console (it is not available when stdin is redirected).
 
 ## Building and releasing
 

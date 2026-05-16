@@ -13,6 +13,12 @@ internal class OptionsValidator : IOptionsValidator
 
     public (TypedRecordOptions? typedRecordOptions, string errorMessage) Validate(RecordOptions options)
     {
+        var markerSuffix = string.IsNullOrWhiteSpace(options.Marker) ? "_good" : options.Marker.Trim();
+        if (!SavedFileMarker.TryValidateSuffix(markerSuffix, out var markerError))
+        {
+            return (null, markerError);
+        }
+
         var replayPath = string.IsNullOrWhiteSpace(options.ReplayMidi) ? null : options.ReplayMidi.Trim();
         if (replayPath != null)
         {
@@ -28,6 +34,7 @@ internal class OptionsValidator : IOptionsValidator
                     options.PathFormatString,
                     options.MidiResolution,
                     Array.Empty<int>(),
+                    markerSuffix,
                     string.IsNullOrWhiteSpace(options.RawCapturePath) ? null : options.RawCapturePath.Trim(),
                     replayPath,
                     options.ReplayRealtime),
@@ -47,6 +54,7 @@ internal class OptionsValidator : IOptionsValidator
                 options.PathFormatString,
                 options.MidiResolution,
                 inputIds,
+                markerSuffix,
                 string.IsNullOrWhiteSpace(options.RawCapturePath) ? null : options.RawCapturePath.Trim(),
                 null,
                 false),

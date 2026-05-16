@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 
+### Added
+
+- Press **m** while recording to mark the last saved MIDI file by renaming it with a configurable suffix (`--marker`, default `_good`).
+
 ## [1.2.1] - 2026-05-16
 
 ### Fixed
