@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 
+## [1.2.1] - 2026-05-16
+
+### Fixed
+
+- Note on/off detection uses MIDI command codes so split and save work for devices that send `NoteOff` events (#17).
+- `{NumberOfNoteEvents}` in the output path format counts note events correctly.
+- Empty split windows no longer produce empty MIDI files.
+- Live `NoteOn` events no longer carry a stale note length into saved files.
+
+### Changed
+
+- Centralized NuGet package versions in `Directory.Packages.props`.
+
 ## [1.2.0] - 2026-05-15
 
 ### Added
