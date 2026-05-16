@@ -59,6 +59,11 @@ public class MidiRecorderApplicationService<TMidiEvent>
         void SaveMidiFile(IEnumerable<TMidiEvent> eventList)
         {
             var midiEvents = eventList as TMidiEvent[] ?? eventList.ToArray();
+            if (midiEvents.Length == 0)
+            {
+                return;
+            }
+
             var context = new MidiFileContext<TMidiEvent>(midiEvents, DateTime.Now, Guid.NewGuid(), _analyzer);
             var filePath = context.BuildFilePath(pathFormatString);
             _logger.LogInformation("Saving {EventCount} events to file {FilePath}...", midiEvents.Length, filePath);
