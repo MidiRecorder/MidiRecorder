@@ -2,7 +2,8 @@ namespace MidiRecorder.Application;
 
 public static class SavedFileMarker
 {
-    private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+    private static readonly char[] DisallowedMarkerChars =
+        ['/', '\\', ':', '*', '?', '"', '<', '>', '|', .. Path.GetInvalidFileNameChars()];
 
     public static string ApplySuffix(string filePath, string suffix)
     {
@@ -21,7 +22,7 @@ public static class SavedFileMarker
             return false;
         }
 
-        if (suffix.IndexOfAny(InvalidFileNameChars) >= 0)
+        if (suffix.IndexOfAny(DisallowedMarkerChars) >= 0)
         {
             errorMessage =
                 $"Marker suffix '{suffix}' contains invalid filename characters.";

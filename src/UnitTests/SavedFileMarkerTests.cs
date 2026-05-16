@@ -19,7 +19,8 @@ public class SavedFileMarkerTests
     [TestMethod]
     public void ApplySuffix_NestedPath_PreservesDirectory()
     {
-        SavedFileMarker.ApplySuffix(@"recordings\2026\foo.mid", "_good")
+        var input = Path.Combine("recordings", "2026", "foo.mid");
+        SavedFileMarker.ApplySuffix(input, "_good")
             .Should()
             .Be(Path.Combine("recordings", "2026", "foo_good.mid"));
     }
