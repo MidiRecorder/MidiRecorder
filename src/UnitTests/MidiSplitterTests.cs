@@ -6,6 +6,8 @@ using FluentAssertions;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MidiRecorder.Application;
+using MidiRecorder.Application.Implementation;
+using NAudio.Midi;
 
 namespace MidiRecorder.Tests;
 
@@ -209,23 +211,112 @@ public class MidiSplitterTests
                 });
     }
 
+    [TestMethod(DisplayName = "Regression for #17")]
+    public void Split_NoteOffCommands_SingleGroup()
+    {
+        var events = new[]
+        {
+            Recorded.OnNext(100, new MidiEventWithPort(new NoteOnEvent(100, 2, 96, 64, 444), 3)),
+            Recorded.OnNext(101, new MidiEventWithPort(new NoteOnEvent(100, 1, 96, 64, 555), 3)),
+            Recorded.OnNext(105, new MidiEventWithPort(new NoteEvent(100, 2, MidiCommandCode.NoteOff, 96, 64), 3)),
+            Recorded.OnNext(106, new MidiEventWithPort(new NoteEvent(100, 1, MidiCommandCode.NoteOff, 96, 64), 3)),
+            Recorded.OnNext(110, new MidiEventWithPort(new NoteOnEvent(100, 2, 95, 64, 666), 3)),
+            Recorded.OnNext(111, new MidiEventWithPort(new NoteOnEvent(100, 1, 95, 64, 777), 3)),
+            Recorded.OnNext(112, new MidiEventWithPort(new NoteEvent(100, 2, MidiCommandCode.NoteOff, 95, 64), 3)),
+            Recorded.OnNext(113, new MidiEventWithPort(new NoteEvent(100, 1, MidiCommandCode.NoteOff, 95, 64), 3)),
+        };
+
+        var timeoutToSave = TimeSpan.FromTicks(30);
+        var delayToSave = TimeSpan.FromTicks(15);
+        var scheduler = new TestScheduler();
+        var analyzer = new NAudioMidiEventAnalyzer();
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave, analyzer.NoteAndSustainPedalCount);
+
+        var result2 = PrepareResult(sut.SplitGroups, scheduler);
+        result2.Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    new[]
+                    {
+                        Recorded.Create(101, "P3 100 NoteOn Ch: 2 C8 Vel:64 Len: 444"),
+                        Recorded.Create(102, "P3 100 NoteOn Ch: 1 C8 Vel:64 Len: 555"),
+                        Recorded.Create(106, "P3 100 NoteOff Ch: 2 C8 Vel:64"),
+                        Recorded.Create(107, "P3 100 NoteOff Ch: 1 C8 Vel:64"),
+                        Recorded.Create(111, "P3 100 NoteOn Ch: 2 B7 Vel:64 Len: 666"),
+                        Recorded.Create(112, "P3 100 NoteOn Ch: 1 B7 Vel:64 Len: 777"),
+                        Recorded.Create(113, "P3 100 NoteOff Ch: 2 B7 Vel:64"),
+                        Recorded.Create(114, "P3 100 NoteOff Ch: 1 B7 Vel:64")
+                    }
+                });
+    }
+
+    [TestMethod(DisplayName = "Regression for #17")]
+    public void Split_NoteOffCommands_SplitsOnHeldTimeout()
+    {
+        var events = new[]
+        {
+            Recorded.OnNext(100, new MidiEventWithPort(new NoteOnEvent(100, 2, 96, 64, 444), 3)),
+            Recorded.OnNext(101, new MidiEventWithPort(new NoteOnEvent(100, 1, 96, 64, 555), 3)),
+            Recorded.OnNext(105, new MidiEventWithPort(new NoteEvent(100, 2, MidiCommandCode.NoteOff, 96, 64), 3)),
+            Recorded.OnNext(106, new MidiEventWithPort(new NoteEvent(100, 1, MidiCommandCode.NoteOff, 96, 64), 3)),
+            Recorded.OnNext(127, new MidiEventWithPort(new NoteOnEvent(100, 2, 95, 64, 666), 3)),
+            Recorded.OnNext(128, new MidiEventWithPort(new NoteOnEvent(100, 1, 95, 64, 777), 3)),
+            Recorded.OnNext(129, new MidiEventWithPort(new NoteEvent(100, 2, MidiCommandCode.NoteOff, 95, 64), 3)),
+            Recorded.OnNext(130, new MidiEventWithPort(new NoteEvent(100, 1, MidiCommandCode.NoteOff, 95, 64), 3)),
+        };
+
+        var timeoutToSave = TimeSpan.FromTicks(20);
+        var delayToSave = TimeSpan.FromTicks(30);
+        var scheduler = new TestScheduler();
+        var analyzer = new NAudioMidiEventAnalyzer();
+        var sut = CreateSplit(scheduler, events, timeoutToSave, delayToSave, analyzer.NoteAndSustainPedalCount);
+
+        var result2 = PrepareResult(sut.SplitGroups, scheduler);
+        result2.Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    new[]
+                    {
+                        Recorded.Create(101, "P3 100 NoteOn Ch: 2 C8 Vel:64 Len: 444"),
+                        Recorded.Create(102, "P3 100 NoteOn Ch: 1 C8 Vel:64 Len: 555"),
+                        Recorded.Create(106, "P3 100 NoteOff Ch: 2 C8 Vel:64"),
+                        Recorded.Create(107, "P3 100 NoteOff Ch: 1 C8 Vel:64"),
+                        Recorded.Create(128, "P3 100 NoteOn Ch: 2 B7 Vel:64 Len: 666"),
+                        Recorded.Create(129, "P3 100 NoteOn Ch: 1 B7 Vel:64 Len: 777"),
+                        Recorded.Create(130, "P3 100 NoteOff Ch: 2 B7 Vel:64"),
+                        Recorded.Create(131, "P3 100 NoteOff Ch: 1 B7 Vel:64")
+                    }
+                });
+    }
+
     private static MidiSplit<string> CreateSplit(
         TestScheduler scheduler,
         Recorded<Notification<string>>[] events,
         TimeSpan timeoutToSave,
         TimeSpan delayToSave)
     {
-        var allEvents = scheduler.CreateColdObservable(events);
-        var sut = new MidiSplitter<string>(scheduler);
-        var split = sut.Split(allEvents, NoteAndSustainPedalCount, timeoutToSave, delayToSave);
-        return split;
+        return CreateSplit(scheduler, events, timeoutToSave, delayToSave, NoteAndSustainPedalCount);
     }
 
-    private static Recorded<string>[][] PrepareResult(IObservable<IObservable<string>> result, TestScheduler scheduler)
+    private static MidiSplit<T> CreateSplit<T>(
+        TestScheduler scheduler,
+        Recorded<Notification<T>>[] events,
+        TimeSpan timeoutToSave,
+        TimeSpan delayToSave,
+        Func<T, int> noteAndSustainPedalCount)
+    {
+        var allEvents = scheduler.CreateColdObservable(events);
+        var sut = new MidiSplitter<T>(scheduler);
+        return sut.Split(allEvents, noteAndSustainPedalCount, timeoutToSave, delayToSave);
+    }
+
+    private static Recorded<string>[][] PrepareResult<T>(IObservable<IObservable<T>> result, TestScheduler scheduler)
     {
         return result.SelectMany((observable, index) => observable.Select(x => (index, x)))
             .WaitAndGetRecorded(scheduler)
-            .GroupBy(x => x.Value.index, x => Recorded.Create(x.Time, x.Value.x))
+            .GroupBy(x => x.Value.index, x => Recorded.Create(x.Time, x.Value.x?.ToString() ?? ""))
             .Select(x => x.ToArray())
             .ToArray();
     }
