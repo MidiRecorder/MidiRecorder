@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service mode to have MIDI Recorder permanently on, or "Autostart" feature.
 - Notification icon.
 
+### Fixed
+
+- Relaxed `global.json` SDK pinning so .NET 8, 9, and 10 SDKs work when building or running `dotnet` from a source checkout (#26).
+
+### Changed
+
+- Clarified README installation instructions: NuGet install vs GitHub source archives (#26).
+
 ## [1.3.0] - 2026-05-16
 
 ### Added

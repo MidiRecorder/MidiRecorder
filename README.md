@@ -28,18 +28,32 @@ favorite DAW.
 MIDI Recorder targets .NET 8 and runs on any installed .NET 8 or newer runtime (including .NET 9 and 10). Install the
 [.NET SDK or runtime](https://dotnet.microsoft.com/download) if you do not already have it.
 
-You can install the tool with:
+### Install from NuGet (recommended)
+
+Install the published tool from [NuGet](https://www.nuget.org/packages/midirec). Run this from any directory **outside**
+a cloned or extracted copy of this repository (the repo's `global.json` only affects `dotnet` commands run inside that
+tree):
 
 ```
 dotnet tool install -g midirec
 ```
 
-You can also install it on a specific folder, but be aware that if you do so you won't have the `midirec` command
-available everywhere:
+On Linux and macOS, add the tools directory to your `PATH` if needed (for example
+`export PATH="$PATH:$HOME/.dotnet/tools"`).
+
+You can also install to a specific folder, but then the `midirec` command is only available when that folder is on your
+`PATH`:
 
 ```
 dotnet tool install --tool-path ./myfolder midirec
 ```
+
+### GitHub source archives
+
+Release downloads such as `MidiRecorder-1.3.0.tar.gz` are **source code**, not an installer. Do not run
+`dotnet tool install -g midirec` from inside an extracted archive expecting a local build — that command still installs
+from NuGet and is subject to the same `global.json` rules as any other `dotnet` CLI invocation in that folder. To use
+the tool, install from NuGet as above. To hack on the project, see [Building from source](#building-from-source) below.
 
 ## Usage
 
@@ -117,9 +131,9 @@ the extension (default `_good`, so `20260516143022.mid` becomes `20260516143022_
 different suffix, for example `--marker _keeper`. Pressing **m** again on the same saved file (before another save) does nothing; each new auto-save can be marked once.
 Marking requires an interactive console (it is not available when stdin is redirected).
 
-## Building and releasing
+## Building from source
 
-From the repository root:
+Clone or download the repository, then from the repository root (requires a .NET 8 or newer SDK):
 
 ```bash
 dotnet restore src/Icm.MidiRecorder.slnx
